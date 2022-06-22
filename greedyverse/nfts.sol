@@ -71,13 +71,13 @@ contract greedyverseNfts is ERC1155, Ownable{
          }else{
              require((singlePlayeramount[msg.sender][id].add(amount) <= spMaxNftAmount_perNft), "You can not mint more than 10 of any NFT except walls");
          }
-         depositeProceeds();
+         depositProceeds();
          mintedNftsAmount[id] = mintedNftsAmount[id].add(amount);
         _mint(msg.sender, id, amount, "");
         singlePlayeramount[msg.sender][id] = singlePlayeramount[msg.sender][id].add(amount);
     }
 
-    function depositeProceeds() private {
+    function depositProceeds() private {
         require(!sendingLocked,"Re-entrancy Detected");
         sendingLocked = true;
         (bool success1, ) = gameContract.call{value: msg.value.div(2)}("");
@@ -115,11 +115,11 @@ contract greedyverseNfts is ERC1155, Ownable{
         Mint = false;
     }
 
-     function starPrivatetMint() public onlyOwner{
+     function starPrivateMint() public onlyOwner{
         PublicMint = false;
     }
 
-    function endPrivatetMint() public onlyOwner{
+    function endPrivateMint() public onlyOwner{
         PublicMint = true;
     }
 }
