@@ -200,6 +200,32 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "PublicMint",
+				"outputs": [
+					{
+						"internalType": "bool",
+						"name": "",
+						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					}
+				],
+				"name": "addToWhiteList",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "address",
@@ -250,6 +276,13 @@
 			{
 				"inputs": [],
 				"name": "endMint",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "endPrivatetMint",
 				"outputs": [],
 				"stateMutability": "nonpayable",
 				"type": "function"
@@ -404,6 +437,19 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "user",
+						"type": "address"
+					}
+				],
+				"name": "removeFromWhiteList",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "renounceOwnership",
 				"outputs": [],
@@ -533,6 +579,13 @@
 			},
 			{
 				"inputs": [],
+				"name": "starPrivatetMint",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
 				"name": "startMint",
 				"outputs": [],
 				"stateMutability": "nonpayable",
@@ -600,6 +653,24 @@
 					}
 				],
 				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "whiteListMint",
+				"outputs": [],
+				"stateMutability": "payable",
 				"type": "function"
 			}
 		],
@@ -745,10 +816,10 @@
 			]
 		},
 		"greedyverse/nfts.sol": {
-			"keccak256": "0xac1e1a40ac473655a5f7faf817297d11a29394dde20f3b0d307080d47afb6ea2",
+			"keccak256": "0x0a4c6bc3aaa265829465b2d2d2061644bfd918ecb90e720187e988760ddf585f",
 			"urls": [
-				"bzz-raw://bda68c25ba16e315ba63346337ad8d7ce3c9d70c167de9e39afe3ea5f3bbea19",
-				"dweb:/ipfs/QmYE5S9cSsWVn3CwT2biJDgqDZj4o7yuDVHHcTtJcsLLWZ"
+				"bzz-raw://ea225365ced8e459afc56c1f12aa265636ef7317585a6b0bb556a57aeaf3d83c",
+				"dweb:/ipfs/QmNYUMTrgid5uJJ2cRNfxVFPLxT8dtSbHADoX2WgcPhW7M"
 			]
 		}
 	},
