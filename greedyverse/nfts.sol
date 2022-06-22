@@ -107,11 +107,12 @@ contract greedyverseNfts is ERC1155, Ownable{
     }
 
     function safeBatchTransferFrom(address from,address to,uint256[] memory ids,uint256[] memory amounts,bytes memory data) public override{
-        require(
-                from == _msgSender() || isApprovedForAll(from, _msgSender()),
-                "ERC1155: caller is not token owner nor approved"
-        );
+        
         for(uint256 i = 0; i < ids.length;i++){
+            require(
+                    from == _msgSender() || isApprovedForAll(from, _msgSender()),
+                    "ERC1155: caller is not token owner nor approved"
+            );
             uint id = ids[i];
             uint amount = amounts[i];
             if(id == 2){
