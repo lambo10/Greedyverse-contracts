@@ -113,8 +113,8 @@ contract greedyverseNfts is ERC1155, Ownable{
                     from == _msgSender() || isApprovedForAll(from, _msgSender()),
                     "ERC1155: caller is not token owner nor approved"
             );
-            uint id = ids[i];
-            uint amount = amounts[i];
+            uint256 id = ids[i];
+            uint256 amount = amounts[i];
             if(id == 2){
              require((singlePlayeramount[to][id].add(amount) <= MaxWoodWall_per_player), "No address can own more than 40 wood walls");
             }else if(id == 3){
