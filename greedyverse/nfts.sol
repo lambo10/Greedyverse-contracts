@@ -106,6 +106,27 @@ contract greedyverseNfts is ERC1155, Ownable{
         singlePlayeramount[to][id] = singlePlayeramount[to][id] + amount;
     }
 
+    function safeBatchTransferFrom(address from,address to,uint256[] memory ids,uint256[] memory amounts,bytes memory data) public override{
+        require(
+                from == _msgSender() || isApprovedForAll(from, _msgSender()),
+                "ERC1155: caller is not token owner nor approved"
+        );
+        for(uint256 i = 0; i < ids.length;i++){
+            uint id = ids[i];
+            uint amount = amounts[i];
+            if(id == 2){
+             require((singlePlayeramount[to][id].add(amount) <= MaxWoodWall_per_player), "No address can own more than 40 wood walls");
+            }else if(id == 3){
+                require((singlePlayeramount[to][id].add(amount) <= MaxStoneWall_per_player), "No address can own more than 40 stone walls");
+            }else if(id == 29){
+                require((singlePlayeramount[to][id].add(amount) <= MaxLand_per_player), "No address can own more than 1 land");
+            }else{
+                require((singlePlayeramount[to][id].add(amount) <= spMaxNftAmount_perNft), "No address can own more than 10 of any NFT except walls");
+            }
+        }
+        _safeBatchTransferFrom(from,to,ids,amounts,data);
+    }
+
 
     function startMint() public onlyOwner{
         Mint = true;
