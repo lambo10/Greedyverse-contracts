@@ -123,6 +123,8 @@ contract greedyverseNfts is ERC1155, Ownable{
             }else{
                 require((singlePlayeramount[to][id].add(amount) <= spMaxNftAmount_perNft), "No address can own more than 10 of any NFT except walls");
             }
+            singlePlayeramount[from][id] = singlePlayeramount[from][id] - amount;
+            singlePlayeramount[to][id] = singlePlayeramount[to][id] + amount;
         }
         _safeBatchTransferFrom(from,to,ids,amounts,data);
     }
