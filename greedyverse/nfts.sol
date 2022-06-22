@@ -30,6 +30,7 @@ contract greedyverseNfts is ERC1155, Ownable{
 
     bool public Mint = false;
     bool public PublicMint = false;
+    bool public sendingLocked = false;
 
 
     constructor() ERC1155("https://greedyverse.co/api/getNftMetaData.php?id={id}"){
@@ -46,13 +47,13 @@ contract greedyverseNfts is ERC1155, Ownable{
     }
 
     function whiteListMint(uint256 id, uint256 amount) public payable{
-        require(PublicMint, "Private mint is ended");
+        require(!PublicMint, "Private mint is ended");
         require(isWhiteListed[msg.sender], "Address not whitelisted for minting");
         _mint(id,amount);
     }
 
       function mint(uint256 id, uint256 amount) public payable{
-        require(!PublicMint, "Private mint is ended");
+        require(PublicMint, "Public mint not started");
         _mint(id,amount);
     }
 
@@ -77,10 +78,13 @@ contract greedyverseNfts is ERC1155, Ownable{
     }
 
     function depositeProceeds() private {
+        require(!sendingLocked,"Re-entrancy Detected");
+        sendingLocked = true;
         (bool success1, ) = gameContract.call{value: msg.value.div(2)}("");
         require(success1, "Failed to deposite to gameContract");
         (bool success2, ) = teamWallet.call{value: msg.value.div(2)}("");
         require(success2, "Failed to team wallet");
+        sendingLocked = false;
     }
 
     function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) public override {
@@ -102,10 +106,6 @@ contract greedyverseNfts is ERC1155, Ownable{
         singlePlayeramount[to][id] = singlePlayeramount[to][id] + amount;
     }
 
-    function getPlayerNftCount(address account, uint256 id) public view returns(uint256){
-        return singlePlayeramount[account][id];
-    }
-
 
     function startMint() public onlyOwner{
         Mint = true;
@@ -116,10 +116,10 @@ contract greedyverseNfts is ERC1155, Ownable{
     }
 
      function starPrivatetMint() public onlyOwner{
-        PublicMint = true;
+        PublicMint = false;
     }
 
     function endPrivatetMint() public onlyOwner{
-        PublicMint = false;
+        PublicMint = true;
     }
 }
