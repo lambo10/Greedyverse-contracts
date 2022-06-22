@@ -26,16 +26,37 @@ contract greedyverseNfts is ERC1155, Ownable{
 
     mapping (address => mapping(uint256 => uint256)) public singlePlayeramount;
 
+    mapping(address => bool) isWhiteListed;
+
     bool public Mint = false;
+    bool public PublicMint = false;
 
 
-    constructor() ERC1155(""){
+    constructor() ERC1155("https://greedyverse.co/api/getNftMetaData.php?id={id}"){
       gameContract = payable(0x48387f87f14edA53F28e3550481623b7c1c3080F);
       teamWallet = payable(0xDb16E8943beF102F87b90cBbCEcA991016f0b5e7);
     }
 
+    function addToWhiteList(address user) public onlyOwner{
+        isWhiteListed[user] = true;
+    }
 
-    function mint(uint256 id, uint256 amount) public payable {
+     function removeFromWhiteList(address user) public onlyOwner{
+        isWhiteListed[user] = false;
+    }
+
+    function whiteListMint(uint256 id, uint256 amount) public payable{
+        require(PublicMint, "Private mint is ended");
+        require(isWhiteListed[msg.sender], "Address not whitelisted for minting");
+        _mint(id,amount);
+    }
+
+      function mint(uint256 id, uint256 amount) public payable{
+        require(!PublicMint, "Private mint is ended");
+        _mint(id,amount);
+    }
+
+    function _mint(uint256 id, uint256 amount) internal {
          require(Mint, "Minting has not started");
          require(msg.sender != address(0), "Cannot mint to a zero address");
          require(mintedNftsAmount[id].add(amount) < maxNftsAmount[id], "Mint amount not available");
@@ -92,5 +113,13 @@ contract greedyverseNfts is ERC1155, Ownable{
 
     function endMint() public onlyOwner{
         Mint = false;
+    }
+
+     function starPrivatetMint() public onlyOwner{
+        PublicMint = true;
+    }
+
+    function endPrivatetMint() public onlyOwner{
+        PublicMint = false;
     }
 }
