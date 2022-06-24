@@ -26,7 +26,7 @@ contract greedyverseNfts is ERC1155, Ownable{
 
     mapping (address => mapping(uint256 => uint256)) public singlePlayeramount;
 
-    mapping(address => bool) isWhiteListed;
+    mapping(address => bool) public isWhiteListed;
 
     bool public Mint = false;
     bool public PublicMint = false;
