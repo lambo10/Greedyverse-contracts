@@ -18,9 +18,9 @@ contract greedyverseNfts is ERC1155, Ownable{
 
     uint256[30] public nftMintPrice = [86000000000000010,258000000000000000,3225000000000000,3225000000000000,129000000000000000,129000000000000000,161250000000000000,161250000000000000,430000000000000050,258000000000000000,86000000000000010,258000000000000000,1433333333333333300,860000000000000100,1075000000000000200,64500000000000000,43000000000000003,1075000000000000200,32250000000000000,64500000000000000,1612500000000000000,1433333333333333300,1612500000000000000,258000000000000000,64500000000000000,258000000000000000,32250000000000000,16125000000000000,64500000000000000,387000000000000000];
 
-     uint256 public spMaxNftAmount_perNft = 10;
-     uint256 public MaxStoneWall_per_player = 20;
-     uint256 public MaxWoodWall_per_player = 20;
+     uint256 public spMaxNftAmount_perNft = 30;
+     uint256 public MaxStoneWall_per_player = 30;
+     uint256 public MaxWoodWall_per_player = 30;
      uint256 public MaxLand_per_player = 5;
 
 
@@ -46,13 +46,13 @@ contract greedyverseNfts is ERC1155, Ownable{
     }
 
     function whiteListMint(uint256 id, uint256 amount) public payable{
-        require(PublicMint, "Private mint is ended");
+        require(!PublicMint, "Private mint is ended");
         require(isWhiteListed[msg.sender], "Address not whitelisted for minting");
         _mint(id,amount);
     }
 
       function mint(uint256 id, uint256 amount) public payable{
-        require(!PublicMint, "Private mint is ended");
+        require(PublicMint, "Public mint has not started");
         _mint(id,amount);
     }
 
