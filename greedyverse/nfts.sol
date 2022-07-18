@@ -66,9 +66,9 @@ contract greedyverseNfts is ERC1155, Ownable{
          }else if(id == 3){
              require((singlePlayeramount[msg.sender][id].add(amount) <= MaxStoneWall_per_player), "You can not mint more than 30 stone walls");
          }else if(id == 29){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxLand_per_player), "You can not mint more than 1 land");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxLand_per_player), "You can not mint more than 5 land");
          }else{
-             require((singlePlayeramount[msg.sender][id].add(amount) <= spMaxNftAmount_perNft), "You can not mint more than 10 of any NFT except walls");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= spMaxNftAmount_perNft), "You can not mint more than 30 of any NFT");
          }
          depositeProceeds();
          mintedNftsAmount[id] = mintedNftsAmount[id].add(amount);
@@ -93,9 +93,9 @@ contract greedyverseNfts is ERC1155, Ownable{
          }else if(id == 3){
              require((singlePlayeramount[to][id].add(amount) <= MaxStoneWall_per_player), "No address can own more than 30 stone walls");
          }else if(id == 29){
-             require((singlePlayeramount[to][id].add(amount) <= MaxLand_per_player), "No address can own more than 1 land");
+             require((singlePlayeramount[to][id].add(amount) <= MaxLand_per_player), "No address can own more than 5 land");
          }else{
-             require((singlePlayeramount[to][id].add(amount) <= spMaxNftAmount_perNft), "No address can own more than 10 of any NFT except walls");
+             require((singlePlayeramount[to][id].add(amount) <= spMaxNftAmount_perNft), "No address can own more than 30 of any NFT");
          }
         _safeTransferFrom(from, to, id, amount, data);
         singlePlayeramount[from][id] = singlePlayeramount[from][id] - amount;
