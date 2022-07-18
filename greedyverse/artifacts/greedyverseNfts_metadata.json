@@ -816,10 +816,10 @@
 			]
 		},
 		"greedyverse/nfts.sol": {
-			"keccak256": "0x510c1c05486f1931d29cbc2b76d9b1d1646a79a499d5401970195885192292a3",
+			"keccak256": "0x5bcd4f27a1dc5011976716e549857558d792847acc7d6de773d02382aa819320",
 			"urls": [
-				"bzz-raw://a587ee454495e38c52e4c866235a4624502357ae3265a53ed6e1ac4d68d55cbb",
-				"dweb:/ipfs/QmY3HCvCiXkbehoVX7MZm5TBTQFTvsLwc3D9Hr7euXRnqk"
+				"bzz-raw://ff5b5b719870da4e845e12cd7bbb50a91d4ff52f7fc820f10afceb1d33bad405",
+				"dweb:/ipfs/QmRRTrScUBF6UWwJNCzb2JM1kxtFb3fAafsE8csJwZyj8G"
 			]
 		}
 	},
