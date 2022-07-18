@@ -21,7 +21,7 @@ contract greedyverseNfts is ERC1155, Ownable{
      uint256 public spMaxNftAmount_perNft = 10;
      uint256 public MaxStoneWall_per_player = 20;
      uint256 public MaxWoodWall_per_player = 20;
-     uint256 public MaxLand_per_player = 1;
+     uint256 public MaxLand_per_player = 5;
 
 
     mapping (address => mapping(uint256 => uint256)) public singlePlayeramount;
