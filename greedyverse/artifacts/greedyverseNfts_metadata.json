@@ -1,6 +1,6 @@
 {
 	"compiler": {
-		"version": "0.8.7+commit.e28d00a7"
+		"version": "0.8.15+commit.e14f2714"
 	},
 	"language": "Solidity",
 	"output": {
@@ -816,10 +816,10 @@
 			]
 		},
 		"greedyverse/nfts.sol": {
-			"keccak256": "0x0527f88597ba065819311b8834d53a88060ebcfee487c229848f252cae8eb424",
+			"keccak256": "0xf9b892c13827aa3dc85ac1ec9757e8f3de623e407dcfbc11889ba6a6751812c0",
 			"urls": [
-				"bzz-raw://5798a3b1a9f7ffce68c13bdb02fccd7982522003e49c176547a1dedefe2e477f",
-				"dweb:/ipfs/QmPyFXzTZZNzx69MjgTQVkvyL5H8qvmojdMuA8zWDzEYXN"
+				"bzz-raw://fc451512df7f3a366b6febd263ccaf3f5f20cef5e194ca70b9cd0a0531263e9a",
+				"dweb:/ipfs/QmShsTF9mF8okm7DiZ2beZgi3XGGkWUqhmqq3q7JFHALD7"
 			]
 		}
 	},

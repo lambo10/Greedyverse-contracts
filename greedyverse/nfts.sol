@@ -33,8 +33,8 @@ contract greedyverseNfts is ERC1155, Ownable{
 
 
     constructor() ERC1155("https://greedyverse.co/api/getNftMetaData.php?id={id}"){
-      gameContract = payable(0x48387f87f14edA53F28e3550481623b7c1c3080F);
-      teamWallet = payable(0xDb16E8943beF102F87b90cBbCEcA991016f0b5e7);
+      gameContract = payable(0x08dA4Adffca7B2B7b819042052C13fF8D059a620);
+      teamWallet = payable(0x86D4d40af737A5914F06C834316D207b29908714);
     }
 
     function addToWhiteList(address user) public onlyOwner{
@@ -62,9 +62,9 @@ contract greedyverseNfts is ERC1155, Ownable{
          require(mintedNftsAmount[id].add(amount) < maxNftsAmount[id], "Mint amount not available");
          require(msg.value >= nftMintPrice[id].mul(amount), "Amount too small to mint nft");
          if(id == 2){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxWoodWall_per_player), "You can not mint more than 40 wood walls");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxWoodWall_per_player), "You can not mint more than 30 wood walls");
          }else if(id == 3){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxStoneWall_per_player), "You can not mint more than 40 stone walls");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxStoneWall_per_player), "You can not mint more than 30 stone walls");
          }else if(id == 29){
              require((singlePlayeramount[msg.sender][id].add(amount) <= MaxLand_per_player), "You can not mint more than 1 land");
          }else{
@@ -89,9 +89,9 @@ contract greedyverseNfts is ERC1155, Ownable{
             "ERC1155: caller is not token owner nor approved"
         );
          if(id == 2){
-             require((singlePlayeramount[to][id].add(amount) <= MaxWoodWall_per_player), "No address can own more than 40 wood walls");
+             require((singlePlayeramount[to][id].add(amount) <= MaxWoodWall_per_player), "No address can own more than 30 wood walls");
          }else if(id == 3){
-             require((singlePlayeramount[to][id].add(amount) <= MaxStoneWall_per_player), "No address can own more than 40 stone walls");
+             require((singlePlayeramount[to][id].add(amount) <= MaxStoneWall_per_player), "No address can own more than 30 stone walls");
          }else if(id == 29){
              require((singlePlayeramount[to][id].add(amount) <= MaxLand_per_player), "No address can own more than 1 land");
          }else{
