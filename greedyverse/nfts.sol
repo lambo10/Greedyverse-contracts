@@ -104,6 +104,16 @@ contract greedyverseNfts is ERC1155, Ownable{
              require((singlePlayeramount[msg.sender][id].add(amount) <= MaxStoneWall_per_player), "You can not mint more than 30 stone walls");
          }else if(id == 29){
              require((singlePlayeramount[msg.sender][id].add(amount) <= MaxLand_per_player), "You can not mint more than 5 land");
+         }else if(id == 20){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxDragon_per_player), "You can not mint more than 2 Dragons");
+         }else if(id == 21){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxBabyDragon_per_player), "You can not mint more than 2 Baby Dragons");
+         }else if(id == 22){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxGolem_per_player), "You can not mint more than 3 Golems");
+         }else if(id == 14){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxGrandWarden_per_player), "You can not mint more than 3 Grand Warden");
+         }else if(id == 8){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxDrone_per_player), "You can not mint more than 3 Drones");
          }else{
              require((singlePlayeramount[msg.sender][id].add(amount) <= spMaxNftAmount_perNft), "You can not mint more than 40 of any NFT");
          }
@@ -131,6 +141,16 @@ contract greedyverseNfts is ERC1155, Ownable{
              require((singlePlayeramount[to][id].add(amount) <= MaxStoneWall_per_player), "No address can own more than 30 stone walls");
          }else if(id == 29){
              require((singlePlayeramount[to][id].add(amount) <= MaxLand_per_player), "No address can own more than 5 land");
+         }else if(id == 20){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxDragon_per_player), "You can not mint more than 2 Dragons");
+         }else if(id == 21){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxBabyDragon_per_player), "You can not mint more than 2 Baby Dragons");
+         }else if(id == 22){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxGolem_per_player), "You can not mint more than 3 Golems");
+         }else if(id == 14){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxGrandWarden_per_player), "You can not mint more than 3 Grand Warden");
+         }else if(id == 8){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxDrone_per_player), "You can not mint more than 3 Drones");
          }else{
              require((singlePlayeramount[to][id].add(amount) <= spMaxNftAmount_perNft), "No address can own more than 40 of any NFT");
          }
@@ -156,6 +176,16 @@ contract greedyverseNfts is ERC1155, Ownable{
              require((singlePlayeramount[to][id].add(amount) <= MaxStoneWall_per_player), "No address can own more than 30 stone walls");
          }else if(id == 29){
              require((singlePlayeramount[to][id].add(amount) <= MaxLand_per_player), "No address can own more than 5 land");
+         }else if(id == 20){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxDragon_per_player), "You can not mint more than 2 Dragons");
+         }else if(id == 21){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxBabyDragon_per_player), "You can not mint more than 2 Baby Dragons");
+         }else if(id == 22){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxGolem_per_player), "You can not mint more than 3 Golems");
+         }else if(id == 14){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxGrandWarden_per_player), "You can not mint more than 3 Grand Warden");
+         }else if(id == 8){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxDrone_per_player), "You can not mint more than 3 Drones");
          }else{
              require((singlePlayeramount[to][id].add(amount) <= spMaxNftAmount_perNft), "No address can own more than 40 of any NFT");
          }
