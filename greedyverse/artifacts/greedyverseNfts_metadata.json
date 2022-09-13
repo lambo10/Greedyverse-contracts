@@ -149,6 +149,71 @@
 			},
 			{
 				"inputs": [],
+				"name": "MaxBabyDragon_per_player",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "MaxDragon_per_player",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "MaxDrone_per_player",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "MaxGolem_per_player",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "MaxGrandWarden_per_player",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
 				"name": "MaxLand_per_player",
 				"outputs": [
 					{
@@ -842,10 +907,10 @@
 			]
 		},
 		"greedyverse/nfts.sol": {
-			"keccak256": "0xcd819533b7e66f3b26f381f16ccd13bc25166e09995ad211956e465e4fa33151",
+			"keccak256": "0x0fde90a105a18cda6f9e67bfb0c09204112c62e4303d150fa3cda244fd29fe26",
 			"urls": [
-				"bzz-raw://a230a2741c1cc0c57d7da4e794a7fd1697e6c5447162064aa51e1ac1e0bc80f0",
-				"dweb:/ipfs/QmRsst8CGLVXcjgPNuixL3RoRunNf8py9Y9NXBdLKKeBjV"
+				"bzz-raw://74f58078b33087892b09dc842236e8672db54d0fdcecca3cb8f6a8b2a999b5fb",
+				"dweb:/ipfs/QmNmwrC2ZLz1yavRXdjkwTqkRAUR8Yo7ZQouRunkqxvSSx"
 			]
 		}
 	},

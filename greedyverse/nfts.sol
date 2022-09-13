@@ -13,49 +13,52 @@ contract greedyverseNfts is ERC1155, Ownable{
     string public name = "GreedyVerseNFT";
     string public symbol = "GNFT";
 
-    uint256[30] public maxNftsAmount = [45000, 15000, 1200000, 1200000, 30000, 30000, 24000, 24000, 9000, 15000, 45000, 15000,
-                                2700, 4500, 3600, 60000, 90000, 3600, 120000, 60000, 2400, 2700, 2400, 15000, 60000,
-                                15000, 120000, 240000, 60000,30000];
+    uint256[30] public maxNftsAmount = [90000, 30000, 1800000, 1800000, 60000, 60000, 48000, 48000, 27000, 30000, 90000, 30000, 8100, 13500, 21600, 120000, 180000, 21600, 240000, 120000, 7200, 8100, 9750, 30000, 120000, 30000, 240000, 480000, 120000, 60000];
     
     uint256[30] public mintedNftsAmount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     uint256[30] public nftMintPrice = [
-        40000000000000000,
-        120000000000000000,
-        1500000000000000,
-        1500000000000000,
-        60000000000000000,
-        60000000000000000,
-        75000000000000000,
-        75000000000000000,
-        200000000000000000,
-        120000000000000000,
-        40000000000000000,
-        120000000000000000,
-        666666666666666600,
-        400000000000000000,
-        500000000000000000,
-        30000000000000000,
-        20000000000000000,
-        500000000000000000,
-        15000000000000000,
-        30000000000000000,
-        750000000000000000,
-        666666666666666600,
-        750000000000000000,
-        120000000000000000,
-        30000000000000000,
-        120000000000000000,
-        15000000000000000,
-        7500000000000000,
-        30000000000000000,
-        60000000000000000
-    ];
+    80000000000000000,
+    240000000000000000,
+    3000000000000000,
+    3000000000000000,
+    120000000000000000,
+    120000000000000000,
+    150000000000000000,
+    150000000000000000,
+    266666666666666660,
+    240000000000000000,
+    80000000000000000,
+    240000000000000000,
+    888888888888888800,
+    533333333333333300,
+    333333333333333300,
+    60000000000000000,
+    40000000000000000,
+    333333333333333300,
+    30000000000000000,
+    60000000000000000,
+    1000000000000000000,
+    888888888888888800,
+    738461538461538500,
+    240000000000000000,
+    60000000000000000,
+    240000000000000000,
+    30000000000000000,
+    15000000000000000,
+    60000000000000000,
+    120000000000000000
+];
 
-     uint256 public spMaxNftAmount_perNft = 30;
+     uint256 public spMaxNftAmount_perNft = 40;
      uint256 public MaxStoneWall_per_player = 30;
      uint256 public MaxWoodWall_per_player = 30;
      uint256 public MaxLand_per_player = 5;
+     uint256 public MaxDragon_per_player = 2;
+     uint256 public MaxBabyDragon_per_player = 2;
+     uint256 public MaxGolem_per_player = 3;
+     uint256 public MaxGrandWarden_per_player = 3;
+     uint256 public MaxDrone_per_player = 3;
 
 
     mapping (address => mapping(uint256 => uint256)) public singlePlayeramount;
@@ -102,7 +105,7 @@ contract greedyverseNfts is ERC1155, Ownable{
          }else if(id == 29){
              require((singlePlayeramount[msg.sender][id].add(amount) <= MaxLand_per_player), "You can not mint more than 5 land");
          }else{
-             require((singlePlayeramount[msg.sender][id].add(amount) <= spMaxNftAmount_perNft), "You can not mint more than 30 of any NFT");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= spMaxNftAmount_perNft), "You can not mint more than 40 of any NFT");
          }
          depositeProceeds();
          mintedNftsAmount[id] = mintedNftsAmount[id].add(amount);
@@ -129,7 +132,7 @@ contract greedyverseNfts is ERC1155, Ownable{
          }else if(id == 29){
              require((singlePlayeramount[to][id].add(amount) <= MaxLand_per_player), "No address can own more than 5 land");
          }else{
-             require((singlePlayeramount[to][id].add(amount) <= spMaxNftAmount_perNft), "No address can own more than 30 of any NFT");
+             require((singlePlayeramount[to][id].add(amount) <= spMaxNftAmount_perNft), "No address can own more than 40 of any NFT");
          }
         _safeTransferFrom(from, to, id, amount, data);
         singlePlayeramount[from][id] = singlePlayeramount[from][id] - amount;
@@ -154,7 +157,7 @@ contract greedyverseNfts is ERC1155, Ownable{
          }else if(id == 29){
              require((singlePlayeramount[to][id].add(amount) <= MaxLand_per_player), "No address can own more than 5 land");
          }else{
-             require((singlePlayeramount[to][id].add(amount) <= spMaxNftAmount_perNft), "No address can own more than 30 of any NFT");
+             require((singlePlayeramount[to][id].add(amount) <= spMaxNftAmount_perNft), "No address can own more than 40 of any NFT");
          }
         }
         _safeBatchTransferFrom(from,to,ids,amounts,data);
