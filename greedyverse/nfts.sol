@@ -18,37 +18,37 @@ contract greedyverseNfts is ERC1155, Ownable{
     uint256[30] public mintedNftsAmount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     uint256[30] public nftMintPrice = [
-    80000000000000000,
-    240000000000000000,
-    3000000000000000,
-    3000000000000000,
-    120000000000000000,
-    120000000000000000,
-    150000000000000000,
-    150000000000000000,
-    266666666666666660,
-    240000000000000000,
-    80000000000000000,
-    240000000000000000,
-    888888888888888800,
-    533333333333333300,
-    333333333333333300,
-    60000000000000000,
-    40000000000000000,
-    333333333333333300,
-    30000000000000000,
-    60000000000000000,
-    1000000000000000000,
-    888888888888888800,
-    738461538461538500,
-    240000000000000000,
-    60000000000000000,
-    240000000000000000,
-    30000000000000000,
-    15000000000000000,
-    60000000000000000,
-    120000000000000000
-];
+        40000000000000000,
+        120000000000000000,
+        1500000000000000,
+        1500000000000000,
+        60000000000000000,
+        60000000000000000,
+        75000000000000000,
+        75000000000000000,
+        133333333333333330,
+        120000000000000000,
+        40000000000000000,
+        120000000000000000,
+        444444444444444400,
+        266666666666666660,
+        166666666666666660,
+        30000000000000000,
+        20000000000000000,
+        166666666666666660,
+        15000000000000000,
+        30000000000000000,
+        500000000000000000,
+        444444444444444400,
+        369230769230769250,
+        120000000000000000,
+        30000000000000000,
+        120000000000000000,
+        15000000000000000,
+        7500000000000000,
+        30000000000000000,
+        120000000000000000
+    ];
 
      uint256 public spMaxNftAmount_perNft = 40;
      uint256 public MaxStoneWall_per_player = 30;
@@ -60,6 +60,13 @@ contract greedyverseNfts is ERC1155, Ownable{
      uint256 public MaxGrandWarden_per_player = 3;
      uint256 public MaxDrone_per_player = 3;
 
+     struct nftItem
+        {
+            uint256 totalHealth;
+            uint256 amount;
+        }
+
+    mapping (address => mapping(uint256 => nftItem)) public holders;
 
     mapping (address => mapping(uint256 => uint256)) public singlePlayeramount;
 
@@ -87,6 +94,28 @@ contract greedyverseNfts is ERC1155, Ownable{
         require(isWhiteListed[msg.sender], "Address not whitelisted for minting");
         _mint(id,amount);
     }
+
+     function revive(uint256 id, uint256 amount) public payable{
+        require(msg.sender != address(0), "Cannot revive on a zero address");
+        require(msg.value >= (nftMintPrice[id].div(2)).mul(amount), "Amount too small to revive nft");
+
+        holders[msg.sender][id].totalHealth = (holders[msg.sender][id].totalHealth).add((nftMintPrice[id].div(2)).mul(amount));
+    }
+
+    function payWinnings(uint256[] memory player1destructionlist, uint256[] memory player2destructionlist, address player1, address player2) public onlyOwner{
+        uint256 TotalPlayer1payment = 0;
+        uint256 TotalPlayer2payment = 0;
+   
+        for (uint i=0; i<player1destructionlist.length; i++) {
+           TotalPlayer1payment = TotalPlayer1payment.add(nftMintPrice[player1destructionlist[i]].div(2)); 
+        }
+
+        for (uint i=0; i<player2destructionlist.length; i++) {
+           TotalPlayer2payment = TotalPlayer2payment.add(nftMintPrice[player2destructionlist[i]].div(2)); 
+        }
+
+        
+    } 
 
       function mint(uint256 id, uint256 amount) public payable{
         require(PublicMint, "Public mint has not started");
@@ -121,6 +150,9 @@ contract greedyverseNfts is ERC1155, Ownable{
          mintedNftsAmount[id] = mintedNftsAmount[id].add(amount);
         _mint(msg.sender, id, amount, "");
         singlePlayeramount[msg.sender][id] = singlePlayeramount[msg.sender][id].add(amount);
+
+        holders[msg.sender][id].totalHealth = (nftMintPrice[id].div(2)).mul(amount);
+        holders[msg.sender][id].amount = amount;
     }
 
     function depositeProceeds() private {
@@ -155,8 +187,13 @@ contract greedyverseNfts is ERC1155, Ownable{
              require((singlePlayeramount[to][id].add(amount) <= spMaxNftAmount_perNft), "No address can own more than 40 of any NFT");
          }
         _safeTransferFrom(from, to, id, amount, data);
-        singlePlayeramount[from][id] = singlePlayeramount[from][id] - amount;
-        singlePlayeramount[to][id] = singlePlayeramount[to][id] + amount;
+        singlePlayeramount[from][id] = (singlePlayeramount[from][id]).sub(amount);
+        singlePlayeramount[to][id] = (singlePlayeramount[to][id]).add(amount);
+
+        holders[from][id].totalHealth = (holders[from][id].totalHealth).sub((nftMintPrice[id].div(2)).mul(amount));
+        holders[from][id].amount = (holders[from][id].amount).sub(amount);
+        holders[to][id].totalHealth = (nftMintPrice[id].div(2)).mul(amount);
+        holders[to][id].amount = amount;
     }
 
     function safeBatchTransferFrom(address from,address to,uint256[] memory ids,uint256[] memory amounts,bytes memory data) public override{
@@ -189,6 +226,14 @@ contract greedyverseNfts is ERC1155, Ownable{
          }else{
              require((singlePlayeramount[to][id].add(amount) <= spMaxNftAmount_perNft), "No address can own more than 40 of any NFT");
          }
+            singlePlayeramount[from][id] = (singlePlayeramount[from][id]).sub(amount);
+            singlePlayeramount[to][id] = (singlePlayeramount[to][id]).add(amount);
+
+            holders[from][id].totalHealth = (holders[from][id].totalHealth).sub((nftMintPrice[id].div(2)).mul(amount));
+            holders[from][id].amount = (holders[from][id].amount).sub(amount);
+            holders[to][id].totalHealth = (nftMintPrice[id].div(2)).mul(amount);
+            holders[to][id].amount = amount;
+
         }
         _safeBatchTransferFrom(from,to,ids,amounts,data);
     }
@@ -197,6 +242,13 @@ contract greedyverseNfts is ERC1155, Ownable{
         return singlePlayeramount[account][id];
     }
 
+    function getPlayerNftAmount(address account, uint256 id) public view returns(uint256){
+        return holders[account][id].amount;
+    }
+
+    function getPlayerNftTotalHealth(address account, uint256 id) public view returns(uint256){
+        return holders[account][id].totalHealth;
+    }
 
     function startMint() public onlyOwner{
         Mint = true;
