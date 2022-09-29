@@ -354,12 +354,36 @@
 			},
 			{
 				"inputs": [],
-				"name": "gameContract",
+				"name": "gameDevWallet",
 				"outputs": [
 					{
 						"internalType": "address payable",
 						"name": "",
 						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					}
+				],
+				"name": "getPlayerNftAmount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
 					}
 				],
 				"stateMutability": "view",
@@ -397,6 +421,59 @@
 						"type": "address"
 					},
 					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					}
+				],
+				"name": "getPlayerNftTotalHealth",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					},
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "holders",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "totalHealth",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "account",
+						"type": "address"
+					},
+					{
 						"internalType": "address",
 						"name": "operator",
 						"type": "address"
@@ -408,6 +485,19 @@
 						"internalType": "bool",
 						"name": "",
 						"type": "bool"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "marketing_contestWallet",
+				"outputs": [
+					{
+						"internalType": "address payable",
+						"name": "",
+						"type": "address"
 					}
 				],
 				"stateMutability": "view",
@@ -515,6 +605,47 @@
 				"type": "function"
 			},
 			{
+				"inputs": [],
+				"name": "pancakeswapV2Router",
+				"outputs": [
+					{
+						"internalType": "contract IPancakeRouter02",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256[]",
+						"name": "player1destructionlist",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "uint256[]",
+						"name": "player2destructionlist",
+						"type": "uint256[]"
+					},
+					{
+						"internalType": "address",
+						"name": "player1",
+						"type": "address"
+					},
+					{
+						"internalType": "address",
+						"name": "player2",
+						"type": "address"
+					}
+				],
+				"name": "payWinnings",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
 				"inputs": [
 					{
 						"internalType": "address",
@@ -532,6 +663,24 @@
 				"name": "renounceOwnership",
 				"outputs": [],
 				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "revive",
+				"outputs": [],
+				"stateMutability": "payable",
 				"type": "function"
 			},
 			{
@@ -906,11 +1055,18 @@
 				"dweb:/ipfs/QmQJquTMtc6fgm5JQzGdsGpA2fqBe3MHWEdt2qzaLySMdN"
 			]
 		},
-		"greedyverse/nfts.sol": {
-			"keccak256": "0xef0e44c54d64b132afd5e1531222997e29ec314462e0bd62d7ce2bb74d091ff2",
+		"@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol": {
+			"keccak256": "0x7c9bc70e5996c763e02ff38905282bc24fb242b0ef2519a003b36824fc524a4b",
 			"urls": [
-				"bzz-raw://0a5784c60cb5d2bd799c889b264f1fd79ce675a4150577a71a890c6ac1995b4e",
-				"dweb:/ipfs/QmRnPKAub98DqX46hfQLPB2n2Vus4bUjT6wWgMzZQg5bpp"
+				"bzz-raw://85d5ad2dd23ee127f40907a12865a1e8cb5828814f6f2480285e1827dd72dedf",
+				"dweb:/ipfs/QmayKQWJgWmr46DqWseADyUanmqxh662hPNdAkdHRjiQQH"
+			]
+		},
+		"greedyverse/nfts.sol": {
+			"keccak256": "0x8874c361bca95ad537ee15207d645416c7ae4e6d17688118bbbe910838ca51bf",
+			"urls": [
+				"bzz-raw://6248fcb07c2fa3d8056e6af23e0b319593429678e1c1699700f5975c5c832107",
+				"dweb:/ipfs/QmUtxCToHuDT4R2RY6mqo2QydsSsqr8kJpJvfkqACBXQSo"
 			]
 		}
 	},
