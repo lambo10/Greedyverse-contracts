@@ -3,12 +3,156 @@ pragma solidity ^0.8.7;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import"@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
+
+
+interface IPancakeRouter01 {
+    function factory() external pure returns (address);
+    function WETH() external pure returns (address);
+
+    function addLiquidity(
+        address tokenA,
+        address tokenB,
+        uint amountADesired,
+        uint amountBDesired,
+        uint amountAMin,
+        uint amountBMin,
+        address to,
+        uint deadline
+    ) external returns (uint amountA, uint amountB, uint liquidity);
+    function addLiquidityETH(
+        address token,
+        uint amountTokenDesired,
+        uint amountTokenMin,
+        uint amountETHMin,
+        address to,
+        uint deadline
+    ) external payable returns (uint amountToken, uint amountETH, uint liquidity);
+    function removeLiquidity(
+        address tokenA,
+        address tokenB,
+        uint liquidity,
+        uint amountAMin,
+        uint amountBMin,
+        address to,
+        uint deadline
+    ) external returns (uint amountA, uint amountB);
+    function removeLiquidityETH(
+        address token,
+        uint liquidity,
+        uint amountTokenMin,
+        uint amountETHMin,
+        address to,
+        uint deadline
+    ) external returns (uint amountToken, uint amountETH);
+    function removeLiquidityWithPermit(
+        address tokenA,
+        address tokenB,
+        uint liquidity,
+        uint amountAMin,
+        uint amountBMin,
+        address to,
+        uint deadline,
+        bool approveMax, uint8 v, bytes32 r, bytes32 s
+    ) external returns (uint amountA, uint amountB);
+    function removeLiquidityETHWithPermit(
+        address token,
+        uint liquidity,
+        uint amountTokenMin,
+        uint amountETHMin,
+        address to,
+        uint deadline,
+        bool approveMax, uint8 v, bytes32 r, bytes32 s
+    ) external returns (uint amountToken, uint amountETH);
+    function swapExactTokensForTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external returns (uint[] memory amounts);
+    function swapTokensForExactTokens(
+        uint amountOut,
+        uint amountInMax,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external returns (uint[] memory amounts);
+    function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
+        external
+        payable
+        returns (uint[] memory amounts);
+    function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
+        external
+        returns (uint[] memory amounts);
+    function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
+        external
+        returns (uint[] memory amounts);
+    function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)
+        external
+        payable
+        returns (uint[] memory amounts);
+
+    function quote(uint amountA, uint reserveA, uint reserveB) external pure returns (uint amountB);
+    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) external pure returns (uint amountOut);
+    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) external pure returns (uint amountIn);
+    function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts);
+    function getAmountsIn(uint amountOut, address[] calldata path) external view returns (uint[] memory amounts);
+}
+
+// File: contracts\interfaces\IPancakeRouter02.sol
+
+pragma solidity >=0.6.2;
+
+interface IPancakeRouter02 is IPancakeRouter01 {
+    function removeLiquidityETHSupportingFeeOnTransferTokens(
+        address token,
+        uint liquidity,
+        uint amountTokenMin,
+        uint amountETHMin,
+        address to,
+        uint deadline
+    ) external returns (uint amountETH);
+    function removeLiquidityETHWithPermitSupportingFeeOnTransferTokens(
+        address token,
+        uint liquidity,
+        uint amountTokenMin,
+        uint amountETHMin,
+        address to,
+        uint deadline,
+        bool approveMax, uint8 v, bytes32 r, bytes32 s
+    ) external returns (uint amountETH);
+
+    function swapExactTokensForTokensSupportingFeeOnTransferTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external;
+    function swapExactETHForTokensSupportingFeeOnTransferTokens(
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external payable;
+    function swapExactTokensForETHSupportingFeeOnTransferTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external;
+}
+
+
 
 contract greedyverseNfts is ERC1155, Ownable{
     using SafeMath for uint256;
 
-    address payable public gameContract;
+    address payable public marketing_contestWallet;
     address payable public teamWallet;
+    address payable public gameDevWallet;
 
     string public name = "GreedyVerseNFT";
     string public symbol = "GNFT";
@@ -59,6 +203,9 @@ contract greedyverseNfts is ERC1155, Ownable{
      uint256 public MaxGolem_per_player = 3;
      uint256 public MaxGrandWarden_per_player = 3;
      uint256 public MaxDrone_per_player = 3;
+     address greedyverseToken = 0xb546fC62DcB523C4f5F1581021Bf27A8019b5516;
+
+     IPancakeRouter02 public immutable pancakeswapV2Router;
 
      struct nftItem
         {
@@ -77,8 +224,12 @@ contract greedyverseNfts is ERC1155, Ownable{
 
 
     constructor() ERC1155("https://greedyverse.co/api/getNftMetaData.php?id={id}"){
-      gameContract = payable(0x08dA4Adffca7B2B7b819042052C13fF8D059a620);
-      teamWallet = payable(0x86D4d40af737A5914F06C834316D207b29908714);
+      marketing_contestWallet = payable(0x22B7b595E4BD0304BBB55e475a01adc573986c5F);
+      teamWallet = payable(0x9e560d6A9E13cf6fBe7A4819AeaF9a05453932C3);
+      gameDevWallet = payable(0x64216e7cD90a112d547C92018e3F8fd2055e4B01);
+
+      IPancakeRouter02 _pancakeswapV2Router = IPancakeRouter02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
+      pancakeswapV2Router = _pancakeswapV2Router;
     }
 
     function addToWhiteList(address user) public onlyOwner{
@@ -114,8 +265,28 @@ contract greedyverseNfts is ERC1155, Ownable{
            TotalPlayer2payment = TotalPlayer2payment.add(nftMintPrice[player2destructionlist[i]].div(2)); 
         }
 
-        
+        swapETHForTokens(TotalPlayer1payment, player1);
+        swapETHForTokens(TotalPlayer2payment, player2);
     } 
+
+
+      function swapETHForTokens(uint256 amount, address to) private {
+       
+             address[] memory path = new address[](2);
+        path[0] = pancakeswapV2Router.WETH();
+        path[1] = greedyverseToken;
+        
+        pancakeswapV2Router.swapExactETHForTokensSupportingFeeOnTransferTokens{value: amount}(
+            0, 
+            path, 
+            to,
+            block.timestamp + 15
+        );
+        
+
+    }
+
+
 
       function mint(uint256 id, uint256 amount) public payable{
         require(PublicMint, "Public mint has not started");
@@ -146,7 +317,7 @@ contract greedyverseNfts is ERC1155, Ownable{
          }else{
              require((singlePlayeramount[msg.sender][id].add(amount) <= spMaxNftAmount_perNft), "You can not mint more than 40 of any NFT");
          }
-         depositeProceeds();
+         depositeProceeds(id);
          mintedNftsAmount[id] = mintedNftsAmount[id].add(amount);
         _mint(msg.sender, id, amount, "");
         singlePlayeramount[msg.sender][id] = singlePlayeramount[msg.sender][id].add(amount);
@@ -155,11 +326,24 @@ contract greedyverseNfts is ERC1155, Ownable{
         holders[msg.sender][id].amount = amount;
     }
 
-    function depositeProceeds() private {
-        (bool success1, ) = gameContract.call{value: msg.value.div(2)}("");
-        require(success1, "Failed to deposite to gameContract");
+    function depositeProceeds(uint256 id) private {
+
+        if(id == 29){
+        (bool success1, ) = marketing_contestWallet.call{value: msg.value.div(3)}("");
+        require(success1, "Failed to deposite to marketing_contestWallet");
+
+        (bool success2, ) = teamWallet.call{value: msg.value.div(3)}("");
+        require(success2, "Failed to team wallet");
+
+        (bool success3, ) = gameDevWallet.call{value: msg.value.div(3)}("");
+        require(success3, "Failed to team wallet");
+
+        }else{
         (bool success2, ) = teamWallet.call{value: msg.value.div(2)}("");
         require(success2, "Failed to team wallet");
+        }
+
+        
     }
 
     function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) public override {
