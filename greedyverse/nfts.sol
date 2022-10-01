@@ -194,15 +194,19 @@ contract greedyverseNfts is ERC1155, Ownable{
         120000000000000000
     ];
 
-     uint256 public spMaxNftAmount_perNft = 40;
-     uint256 public MaxStoneWall_per_player = 30;
-     uint256 public MaxWoodWall_per_player = 30;
-     uint256 public MaxLand_per_player = 5;
-     uint256 public MaxDragon_per_player = 2;
-     uint256 public MaxBabyDragon_per_player = 2;
-     uint256 public MaxGolem_per_player = 3;
-     uint256 public MaxGrandWarden_per_player = 3;
-     uint256 public MaxDrone_per_player = 3;
+      //  uint256 public spMaxNftAmount_perNft = 40;
+    //  uint256 public MaxStoneWall_per_player = 30;
+    //  uint256 public MaxWoodWall_per_player = 30;
+    //  uint256 public MaxLand_per_player = 5;
+    //  uint256 public MaxDragon_per_player = 2;
+    //  uint256 public MaxBabyDragon_per_player = 2;
+    //  uint256 public MaxGolem_per_player = 3;
+    //  uint256 public MaxGrandWarden_per_player = 3;
+    //  uint256 public MaxDrone_per_player = 3;
+
+    uint256[9] public max_nfts_amount = [40,30,30,5,2,2,3,3,3];
+
+
      address greedyverseToken = 0xb546fC62DcB523C4f5F1581021Bf27A8019b5516;
 
      IPancakeRouter02 public immutable pancakeswapV2Router;
@@ -293,30 +297,36 @@ contract greedyverseNfts is ERC1155, Ownable{
         _mint(id,amount);
     }
 
+    function check_conditions(uint256 id, uint256 amount) private view returns(bool){
+        if(id == 2){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[2]), "You can not mint more than 30 wood walls");
+         }else if(id == 3){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[1]), "You can not mint more than 30 stone walls");
+         }else if(id == 29){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[3]), "You can not mint more than 5 land");
+         }else if(id == 20){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[4]), "You can not mint more than 2 Dragons");
+         }else if(id == 21){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[5]), "You can not mint more than 2 Baby Dragons");
+         }else if(id == 22){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[6]), "You can not mint more than 3 Golems");
+         }else if(id == 14){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[7]), "You can not mint more than 3 Grand Warden");
+         }else if(id == 8){
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[8]), "You can not mint more than 3 Drones");
+         }else{
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[0]), "You can not mint more than 40 of any NFT");
+         }
+         return true;
+    }
+
     function _mint(uint256 id, uint256 amount) internal {
          require(Mint, "Minting has not started");
          require(msg.sender != address(0), "Cannot mint to a zero address");
          require(mintedNftsAmount[id].add(amount) < maxNftsAmount[id], "Mint amount not available");
          require(msg.value >= nftMintPrice[id].mul(amount), "Amount too small to mint nft");
-         if(id == 2){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxWoodWall_per_player), "You can not mint more than 30 wood walls");
-         }else if(id == 3){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxStoneWall_per_player), "You can not mint more than 30 stone walls");
-         }else if(id == 29){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxLand_per_player), "You can not mint more than 5 land");
-         }else if(id == 20){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxDragon_per_player), "You can not mint more than 2 Dragons");
-         }else if(id == 21){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxBabyDragon_per_player), "You can not mint more than 2 Baby Dragons");
-         }else if(id == 22){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxGolem_per_player), "You can not mint more than 3 Golems");
-         }else if(id == 14){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxGrandWarden_per_player), "You can not mint more than 3 Grand Warden");
-         }else if(id == 8){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxDrone_per_player), "You can not mint more than 3 Drones");
-         }else{
-             require((singlePlayeramount[msg.sender][id].add(amount) <= spMaxNftAmount_perNft), "You can not mint more than 40 of any NFT");
-         }
+         require(check_conditions(id,amount),"");
+
          depositeProceeds(id);
          mintedNftsAmount[id] = mintedNftsAmount[id].add(amount);
         _mint(msg.sender, id, amount, "");
@@ -330,20 +340,30 @@ contract greedyverseNfts is ERC1155, Ownable{
 
         if(id == 29){
         (bool success1, ) = marketing_contestWallet.call{value: msg.value.div(3)}("");
-        require(success1, "Failed to deposite to marketing_contestWallet");
+        require(success1, "");
 
         (bool success2, ) = teamWallet.call{value: msg.value.div(3)}("");
-        require(success2, "Failed to team wallet");
+        require(success2, "");
 
         (bool success3, ) = gameDevWallet.call{value: msg.value.div(3)}("");
-        require(success3, "Failed to team wallet");
+        require(success3, "");
 
         }else{
         (bool success2, ) = teamWallet.call{value: msg.value.div(2)}("");
-        require(success2, "Failed to team wallet");
+        require(success2, "");
         }
 
         
+    }
+
+    function registerTransfer(address from, address to, uint256 id, uint256 amount)private{
+         singlePlayeramount[from][id] = (singlePlayeramount[from][id]).sub(amount);
+        singlePlayeramount[to][id] = (singlePlayeramount[to][id]).add(amount);
+
+        holders[from][id].totalHealth = (holders[from][id].totalHealth).sub((nftMintPrice[id].div(2)).mul(amount));
+        holders[from][id].amount = (holders[from][id].amount).sub(amount);
+        holders[to][id].totalHealth = (nftMintPrice[id].div(2)).mul(amount);
+        holders[to][id].amount = amount;
     }
 
     function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) public override {
@@ -351,33 +371,12 @@ contract greedyverseNfts is ERC1155, Ownable{
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: caller is not token owner nor approved"
         );
-         if(id == 2){
-             require((singlePlayeramount[to][id].add(amount) <= MaxWoodWall_per_player), "No address can own more than 30 wood walls");
-         }else if(id == 3){
-             require((singlePlayeramount[to][id].add(amount) <= MaxStoneWall_per_player), "No address can own more than 30 stone walls");
-         }else if(id == 29){
-             require((singlePlayeramount[to][id].add(amount) <= MaxLand_per_player), "No address can own more than 5 land");
-         }else if(id == 20){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxDragon_per_player), "You can not mint more than 2 Dragons");
-         }else if(id == 21){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxBabyDragon_per_player), "You can not mint more than 2 Baby Dragons");
-         }else if(id == 22){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxGolem_per_player), "You can not mint more than 3 Golems");
-         }else if(id == 14){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxGrandWarden_per_player), "You can not mint more than 3 Grand Warden");
-         }else if(id == 8){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxDrone_per_player), "You can not mint more than 3 Drones");
-         }else{
-             require((singlePlayeramount[to][id].add(amount) <= spMaxNftAmount_perNft), "No address can own more than 40 of any NFT");
-         }
-        _safeTransferFrom(from, to, id, amount, data);
-        singlePlayeramount[from][id] = (singlePlayeramount[from][id]).sub(amount);
-        singlePlayeramount[to][id] = (singlePlayeramount[to][id]).add(amount);
+        require(check_conditions(id,amount),"");
 
-        holders[from][id].totalHealth = (holders[from][id].totalHealth).sub((nftMintPrice[id].div(2)).mul(amount));
-        holders[from][id].amount = (holders[from][id].amount).sub(amount);
-        holders[to][id].totalHealth = (nftMintPrice[id].div(2)).mul(amount);
-        holders[to][id].amount = amount;
+        _safeTransferFrom(from, to, id, amount, data);
+
+        registerTransfer(from, to, id, amount);
+       
     }
 
     function safeBatchTransferFrom(address from,address to,uint256[] memory ids,uint256[] memory amounts,bytes memory data) public override{
@@ -391,32 +390,9 @@ contract greedyverseNfts is ERC1155, Ownable{
             );
             uint256 id = ids[i];
             uint256 amount = amounts[i];
-         if(id == 2){
-             require((singlePlayeramount[to][id].add(amount) <= MaxWoodWall_per_player), "No address can own more than 30 wood walls");
-         }else if(id == 3){
-             require((singlePlayeramount[to][id].add(amount) <= MaxStoneWall_per_player), "No address can own more than 30 stone walls");
-         }else if(id == 29){
-             require((singlePlayeramount[to][id].add(amount) <= MaxLand_per_player), "No address can own more than 5 land");
-         }else if(id == 20){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxDragon_per_player), "You can not mint more than 2 Dragons");
-         }else if(id == 21){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxBabyDragon_per_player), "You can not mint more than 2 Baby Dragons");
-         }else if(id == 22){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxGolem_per_player), "You can not mint more than 3 Golems");
-         }else if(id == 14){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxGrandWarden_per_player), "You can not mint more than 3 Grand Warden");
-         }else if(id == 8){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= MaxDrone_per_player), "You can not mint more than 3 Drones");
-         }else{
-             require((singlePlayeramount[to][id].add(amount) <= spMaxNftAmount_perNft), "No address can own more than 40 of any NFT");
-         }
-            singlePlayeramount[from][id] = (singlePlayeramount[from][id]).sub(amount);
-            singlePlayeramount[to][id] = (singlePlayeramount[to][id]).add(amount);
+            require(check_conditions(id,amount),"");
 
-            holders[from][id].totalHealth = (holders[from][id].totalHealth).sub((nftMintPrice[id].div(2)).mul(amount));
-            holders[from][id].amount = (holders[from][id].amount).sub(amount);
-            holders[to][id].totalHealth = (nftMintPrice[id].div(2)).mul(amount);
-            holders[to][id].amount = amount;
+            registerTransfer(from, to, id, amount);
 
         }
         _safeBatchTransferFrom(from,to,ids,amounts,data);

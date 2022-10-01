@@ -149,110 +149,6 @@
 			},
 			{
 				"inputs": [],
-				"name": "MaxBabyDragon_per_player",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "MaxDragon_per_player",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "MaxDrone_per_player",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "MaxGolem_per_player",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "MaxGrandWarden_per_player",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "MaxLand_per_player",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "MaxStoneWall_per_player",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
-				"name": "MaxWoodWall_per_player",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
 				"name": "Mint",
 				"outputs": [
 					{
@@ -512,6 +408,25 @@
 					}
 				],
 				"name": "maxNftsAmount",
+				"outputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "max_nfts_amount",
 				"outputs": [
 					{
 						"internalType": "uint256",
@@ -793,19 +708,6 @@
 			},
 			{
 				"inputs": [],
-				"name": "spMaxNftAmount_perNft",
-				"outputs": [
-					{
-						"internalType": "uint256",
-						"name": "",
-						"type": "uint256"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			},
-			{
-				"inputs": [],
 				"name": "starPrivatetMint",
 				"outputs": [],
 				"stateMutability": "nonpayable",
@@ -1063,10 +965,10 @@
 			]
 		},
 		"greedyverse/nfts.sol": {
-			"keccak256": "0x8874c361bca95ad537ee15207d645416c7ae4e6d17688118bbbe910838ca51bf",
+			"keccak256": "0x45fe4ca3d26745743620cffc4cb5f47639f6380ed45932aa3153000f35946697",
 			"urls": [
-				"bzz-raw://6248fcb07c2fa3d8056e6af23e0b319593429678e1c1699700f5975c5c832107",
-				"dweb:/ipfs/QmUtxCToHuDT4R2RY6mqo2QydsSsqr8kJpJvfkqACBXQSo"
+				"bzz-raw://29568d765eb663e538ddbd2b866aab97f47074d1060c6b90d705740afa7422c8",
+				"dweb:/ipfs/QmdruhvYqGQQdRNJeyBA1m8CEmwwF21VxU4nUFEb72r2eL"
 			]
 		}
 	},
