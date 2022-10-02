@@ -783,11 +783,11 @@
 	},
 	"sources": {
 		"greedyverse/token.sol": {
-			"keccak256": "0x29de8f3a975ac6f62214666eb34424a6d4c14a765d640954cf3b453a0e6345cc",
+			"keccak256": "0xf99c86bf2b0ee6716442431806ba3570d295168099b401a507402cf8c883c53d",
 			"license": "Unlicensed",
 			"urls": [
-				"bzz-raw://e6919ec5c9af9d1f674d33cf6cc7d8e84c8c192c545631bca22286b643bc2e97",
-				"dweb:/ipfs/QmNka5X7gwDwXmiJCVZS2gFrKUjDGibfgUPCXDF2kW4Spp"
+				"bzz-raw://79a2051c1f6852a6339975eef21e3fcf3bb36b042e402ebbd513ebe4630fae95",
+				"dweb:/ipfs/QmYFoHncUhc3XQGE5YwjcYJhmxiYpRfJF1mhD73WDzv3QC"
 			]
 		}
 	},

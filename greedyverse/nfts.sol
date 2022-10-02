@@ -228,9 +228,9 @@ contract greedyverseNfts is ERC1155, Ownable{
 
 
     constructor() ERC1155("https://greedyverse.co/api/getNftMetaData.php?id={id}"){
-      marketing_contestWallet = payable(0x22B7b595E4BD0304BBB55e475a01adc573986c5F);
-      teamWallet = payable(0x9e560d6A9E13cf6fBe7A4819AeaF9a05453932C3);
-      gameDevWallet = payable(0x64216e7cD90a112d547C92018e3F8fd2055e4B01);
+      marketing_contestWallet = payable(0x39216B5e5fB7b08081eA0a107957d8C7AC197C25);
+      teamWallet = payable(0x23f7E43F6Ada4f265f8184Ef842570b86fB8a367);
+      gameDevWallet = payable(0xe2D4190c70A84EEF16f9490bA22C2f14Ec47fdc5);
 
       IPancakeRouter02 _pancakeswapV2Router = IPancakeRouter02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
       pancakeswapV2Router = _pancakeswapV2Router;

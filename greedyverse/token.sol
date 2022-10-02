@@ -409,7 +409,7 @@ interface IUniswapV2Router02 is IUniswapV2Router01 {
     ) external;
 }
 
-contract GreedyVerse is Context, IERC20, Ownable {
+contract testToken is Context, IERC20, Ownable {
     using SafeMath for uint256;
     using Address for address;
     
@@ -429,8 +429,8 @@ contract GreedyVerse is Context, IERC20, Ownable {
     uint256 private _rTotal = (MAX - (MAX % _tTotal));
     uint256 private _tFeeTotal;
 
-    string private _name = unicode"GreedyVerse";
-    string private _symbol = unicode"GVERSE";
+    string private _name = unicode"testToken";
+    string private _symbol = unicode"tt";
     uint8 private _decimals = 9;
 
 
