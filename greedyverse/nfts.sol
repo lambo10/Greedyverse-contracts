@@ -281,12 +281,11 @@ contract greedyverseNfts is ERC1155, Ownable{
         path[0] = pancakeswapV2Router.WETH();
         path[1] = greedyverseToken;
         
-         uint256 tmpAmtm = 10000000000000000;
 
         if(TotalPlayer1payment > 0 && TotalPlayer1payment < 2000000000000000){
         payInBNB(player1, TotalPlayer1payment);
         }else if(TotalPlayer1payment >= 2000000000000000){
-        pancakeswapV2Router.swapExactETHForTokensSupportingFeeOnTransferTokens{value: tmpAmtm.sub(1000000000000000)}(
+        pancakeswapV2Router.swapExactETHForTokensSupportingFeeOnTransferTokens{value: TotalPlayer1payment.sub(1000000000000000)}(
             0, 
             path, 
             player1,
