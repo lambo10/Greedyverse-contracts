@@ -387,6 +387,24 @@
 				"type": "function"
 			},
 			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "amount",
+						"type": "uint256"
+					}
+				],
+				"name": "landMintFirstRound",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
 				"inputs": [],
 				"name": "marketing_contestWallet",
 				"outputs": [
@@ -557,7 +575,7 @@
 				],
 				"name": "payWinnings",
 				"outputs": [],
-				"stateMutability": "nonpayable",
+				"stateMutability": "payable",
 				"type": "function"
 			},
 			{
@@ -965,10 +983,10 @@
 			]
 		},
 		"greedyverse/nfts.sol": {
-			"keccak256": "0x64fda7c398e5b5fa0a87cea85ed473150ac834c51310e6ea1dc0f62461cd7b70",
+			"keccak256": "0x2bd998f675ce06f7c1ee2313a4560a2309e1ad6c214ad6115eec59da77159ea3",
 			"urls": [
-				"bzz-raw://42930f139ca634a27e8825157e1634c96852083134c309213d93c6bbb0983b97",
-				"dweb:/ipfs/QmP3FChU8SEzygJEoGHPe8NpYdgSgJRVkqzUbrS6ENAFG7"
+				"bzz-raw://2bf71d6e8a6094dae909015a4e52a464364e8662d96104b6425999e21b2d53f4",
+				"dweb:/ipfs/QmXzVBrUXWnf2jgkx7h826QJjyuJCuDd2XL6QBHrEgwp3y"
 			]
 		}
 	},

@@ -194,6 +194,8 @@ contract greedyverseNfts is ERC1155, Ownable{
         120000000000000000
     ];
 
+    uint256 landPriceFirstListing = 156000000000000000;
+
       //  uint256 public spMaxNftAmount_perNft = 40;
     //  uint256 public MaxStoneWall_per_player = 30;
     //  uint256 public MaxWoodWall_per_player = 30;
@@ -207,7 +209,7 @@ contract greedyverseNfts is ERC1155, Ownable{
     uint256[9] public max_nfts_amount = [40,30,30,5,2,2,3,3,3];
 
 
-     address greedyverseToken = 0xb546fC62DcB523C4f5F1581021Bf27A8019b5516;
+     address greedyverseToken = 0x8a9424745056Eb399FD19a0EC26A14316684e274;
 
      IPancakeRouter02 public immutable pancakeswapV2Router;
 
@@ -232,7 +234,7 @@ contract greedyverseNfts is ERC1155, Ownable{
       teamWallet = payable(0x23f7E43F6Ada4f265f8184Ef842570b86fB8a367);
       gameDevWallet = payable(0xe2D4190c70A84EEF16f9490bA22C2f14Ec47fdc5);
 
-      IPancakeRouter02 _pancakeswapV2Router = IPancakeRouter02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
+      IPancakeRouter02 _pancakeswapV2Router = IPancakeRouter02(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
       pancakeswapV2Router = _pancakeswapV2Router;
     }
 
@@ -247,17 +249,23 @@ contract greedyverseNfts is ERC1155, Ownable{
     function whiteListMint(uint256 id, uint256 amount) public payable{
         require(!PublicMint, "Private mint is ended");
         require(isWhiteListed[msg.sender], "Address not whitelisted for minting");
-        _mint(id,amount);
+        _mint(id,amount,false);
+    }
+
+    function landMintFirstRound(uint256 id, uint256 amount) public payable{
+        require(!PublicMint, "Private mint is ended");
+        require(isWhiteListed[msg.sender], "Address not whitelisted for minting");
+        _mint(id,amount,true);
     }
 
      function revive(uint256 id, uint256 amount) public payable{
-        require(msg.sender != address(0), "Cannot revive on a zero address");
-        require(msg.value >= (nftMintPrice[id].div(2)).mul(amount), "Amount too small to revive nft");
+        require(msg.sender != address(0), "Zero address");
+        require(msg.value >= (nftMintPrice[id].div(2)).mul(amount), "Amount small");
 
         holders[msg.sender][id].totalHealth = (holders[msg.sender][id].totalHealth).add((nftMintPrice[id].div(2)).mul(amount));
     }
 
-    function payWinnings(uint256[] memory player1destructionlist, uint256[] memory player2destructionlist, address player1, address player2) public onlyOwner{
+    function payWinnings(uint256[] memory player1destructionlist, uint256[] memory player2destructionlist, address player1, address player2) public payable onlyOwner{
         uint256 TotalPlayer1payment = 0;
         uint256 TotalPlayer2payment = 0;
    
@@ -269,62 +277,99 @@ contract greedyverseNfts is ERC1155, Ownable{
            TotalPlayer2payment = TotalPlayer2payment.add(nftMintPrice[player2destructionlist[i]].div(2)); 
         }
 
-        swapETHForTokens(TotalPlayer1payment, player1);
-        swapETHForTokens(TotalPlayer2payment, player2);
-    } 
-
-
-      function swapETHForTokens(uint256 amount, address to) private {
-       
-             address[] memory path = new address[](2);
+         address[] memory path = new address[](2);
         path[0] = pancakeswapV2Router.WETH();
         path[1] = greedyverseToken;
         
-        pancakeswapV2Router.swapExactETHForTokensSupportingFeeOnTransferTokens{value: amount}(
+         uint256 tmpAmtm = 10000000000000000;
+
+        if(TotalPlayer1payment > 0 && TotalPlayer1payment < 2000000000000000){
+        payInBNB(player1, TotalPlayer1payment);
+        }else if(TotalPlayer1payment >= 2000000000000000){
+        pancakeswapV2Router.swapExactETHForTokensSupportingFeeOnTransferTokens{value: tmpAmtm.sub(1000000000000000)}(
             0, 
             path, 
-            to,
+            player1,
             block.timestamp + 15
         );
+    }
         
-
+        if(TotalPlayer2payment > 0 && TotalPlayer2payment < 2000000000000000){
+        payInBNB(player2, TotalPlayer2payment);
+        }else if(TotalPlayer2payment >= 2000000000000000){
+     pancakeswapV2Router.swapExactETHForTokensSupportingFeeOnTransferTokens{value: TotalPlayer2payment.sub(1000000000000000)}(
+            0, 
+            path, 
+            player2,
+            block.timestamp + 15
+        );
     }
 
+       
 
+        // swapETHForTokens(TotalPlayer1payment, player1);
+        // swapETHForTokens(TotalPlayer2payment, player2);
+    } 
+
+
+    //   function swapETHForTokens(uint256 amount, address to) public payable {
+       
+    //          address[] memory path = new address[](2);
+    //     path[0] = pancakeswapV2Router.WETH();
+    //     path[1] = greedyverseToken;
+        
+    //     pancakeswapV2Router.swapExactETHForTokensSupportingFeeOnTransferTokens{value: amount.sub(1000000000000000)}(
+    //         0, 
+    //         path, 
+    //         to,
+    //         block.timestamp + 15
+    //     );
+        
+
+    // }
+
+        function payInBNB(address to, uint256 amount)private{
+            (bool success1, ) = payable(to).call{value: amount.sub(1000000000000000)}("");
+            require(success1, "");
+        }
 
       function mint(uint256 id, uint256 amount) public payable{
         require(PublicMint, "Public mint has not started");
-        _mint(id,amount);
+        _mint(id,amount,false);
     }
 
     function check_conditions(uint256 id, uint256 amount) private view returns(bool){
         if(id == 2){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[2]), "You can not mint more than 30 wood walls");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[2]), "!>30");
          }else if(id == 3){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[1]), "You can not mint more than 30 stone walls");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[1]), "!>30");
          }else if(id == 29){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[3]), "You can not mint more than 5 land");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[3]), "!>5");
          }else if(id == 20){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[4]), "You can not mint more than 2 Dragons");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[4]), "!>2");
          }else if(id == 21){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[5]), "You can not mint more than 2 Baby Dragons");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[5]), "!>2");
          }else if(id == 22){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[6]), "You can not mint more than 3 Golems");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[6]), "!>3");
          }else if(id == 14){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[7]), "You can not mint more than 3 Grand Warden");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[7]), "!>3");
          }else if(id == 8){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[8]), "You can not mint more than 3 Drones");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[8]), "!>3");
          }else{
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[0]), "You can not mint more than 40 of any NFT");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[0]), "!>40");
          }
          return true;
     }
 
-    function _mint(uint256 id, uint256 amount) internal {
+    function _mint(uint256 id, uint256 amount, bool landMintFirstListing) internal {
          require(Mint, "Minting has not started");
-         require(msg.sender != address(0), "Cannot mint to a zero address");
-         require(mintedNftsAmount[id].add(amount) < maxNftsAmount[id], "Mint amount not available");
-         require(msg.value >= nftMintPrice[id].mul(amount), "Amount too small to mint nft");
+         require(msg.sender != address(0), "Zero address");
+         require(mintedNftsAmount[id].add(amount) < maxNftsAmount[id], "Amount unavailable");
+         if(landMintFirstListing){
+            require(msg.value >= nftMintPrice[id].mul(amount), "Amount small");
+         }else{
+            require(msg.value >= landPriceFirstListing.mul(amount), "Amount small");
+         }
          require(check_conditions(id,amount),"");
 
          depositeProceeds(id);
@@ -332,8 +377,8 @@ contract greedyverseNfts is ERC1155, Ownable{
         _mint(msg.sender, id, amount, "");
         singlePlayeramount[msg.sender][id] = singlePlayeramount[msg.sender][id].add(amount);
 
-        holders[msg.sender][id].totalHealth = (nftMintPrice[id].div(2)).mul(amount);
-        holders[msg.sender][id].amount = amount;
+        holders[msg.sender][id].totalHealth = (holders[msg.sender][id].totalHealth).add((nftMintPrice[id].div(2)).mul(amount)) ;
+        holders[msg.sender][id].amount = holders[msg.sender][id].amount.add(amount);
     }
 
     function depositeProceeds(uint256 id) private {
