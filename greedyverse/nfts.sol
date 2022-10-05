@@ -365,7 +365,7 @@ contract greedyverseNfts is ERC1155, Ownable{
          require(Mint, "Minting has not started");
          require(msg.sender != address(0), "Zero address");
          require(mintedNftsAmount[id].add(amount) < maxNftsAmount[id], "Amount unavailable");
-         if(landMintFirstListing){
+         if(!landMintFirstListing){
             require(msg.value >= nftMintPrice[id].mul(amount), "Amount small");
          }else{
             require(msg.value >= landPriceFirstListing.mul(amount), "Amount small");
