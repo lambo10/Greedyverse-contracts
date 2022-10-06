@@ -328,7 +328,7 @@ contract greedyverseNfts is ERC1155, Ownable{
     // }
 
         function payInBNB(address to, uint256 amount)private{
-            (bool success1, ) = payable(to).call{value: amount.sub(1000000000000000)}("");
+            (bool success1, ) = payable(to).call{value: amount}("");
             require(success1, "");
         }
 
