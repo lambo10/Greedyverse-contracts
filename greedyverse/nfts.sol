@@ -161,6 +161,7 @@ contract greedyverseNfts is ERC1155, Ownable{
     
     uint256[30] public mintedNftsAmount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
+// In Wei
     uint256[30] public nftMintPrice = [
         40000000000000000,
         120000000000000000,
@@ -195,6 +196,7 @@ contract greedyverseNfts is ERC1155, Ownable{
     ];
 
     uint256 landPriceFirstListing = 120000000000000000;
+    uint256 tax = 30000000000000000;
 
       //  uint256 public spMaxNftAmount_perNft = 40;
     //  uint256 public MaxStoneWall_per_player = 30;
@@ -299,12 +301,12 @@ contract greedyverseNfts is ERC1155, Ownable{
         
         if(winnings[msg.sender] < 2000000000000000){
 
-        (bool success1, ) = payable(msg.sender).call{value: winnings[msg.sender]}("");
+        (bool success1, ) = payable(msg.sender).call{value: winnings[msg.sender].sub(winnings[msg.sender].mul(tax))}("");
         require(success1, "");
 
         }
         else{
-        pancakeswapV2Router.swapExactETHForTokensSupportingFeeOnTransferTokens{value: winnings[msg.sender].sub(1000000000000000)}(
+        pancakeswapV2Router.swapExactETHForTokensSupportingFeeOnTransferTokens{value: winnings[msg.sender].sub(winnings[msg.sender].mul(tax))}(
             0, 
             path, 
             msg.sender,
@@ -312,6 +314,9 @@ contract greedyverseNfts is ERC1155, Ownable{
         );
     }
         winnings[msg.sender] = 0;
+
+        (bool success2, ) = marketing_contestWallet.call{value: winnings[msg.sender].mul(tax)}("");
+        require(success2, "");
 
     }
 
@@ -427,9 +432,6 @@ contract greedyverseNfts is ERC1155, Ownable{
         _safeBatchTransferFrom(from,to,ids,amounts,data);
     }
 
-    function getPlayerNftCount(address account, uint256 id) public view returns(uint256){
-        return singlePlayeramount[account][id];
-    }
 
     function getPlayerNftAmount(address account, uint256 id) public view returns(uint256){
         return holders[account][id].amount;
