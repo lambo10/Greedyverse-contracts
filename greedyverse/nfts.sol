@@ -470,6 +470,7 @@ contract greedyverseNfts is ERC1155, Ownable{
         if(_LandMint){
             landMintingPrice = _landMintingPrice;
         }
+        nftMintPrice[29] = landMintingPrice;
     }
 
    
