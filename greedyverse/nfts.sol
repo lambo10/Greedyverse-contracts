@@ -276,12 +276,12 @@ contract greedyverseNfts is ERC1155, Ownable{
    
         for (uint i=0; i<player1destructionlist.length; i++) {
            TotalPlayer1payment = TotalPlayer1payment.add(nftMintPrice[player1destructionlist[i]].div(2)); 
-           holders[player2][i].totalHealth.sub(nftMintPrice[player1destructionlist[i]].div(2));
+           holders[player2][player1destructionlist[i]].totalHealth.sub(nftMintPrice[player1destructionlist[i]].div(2));
         }
 
         for (uint i=0; i<player2destructionlist.length; i++) {
            TotalPlayer2payment = TotalPlayer2payment.add(nftMintPrice[player2destructionlist[i]].div(2)); 
-           holders[player1][i].totalHealth.sub(nftMintPrice[player2destructionlist[i]].div(2));
+           holders[player1][player1destructionlist[i]].totalHealth.sub(nftMintPrice[player2destructionlist[i]].div(2));
         }
 
         winnings[player1] = winnings[player1].add(TotalPlayer1payment);
