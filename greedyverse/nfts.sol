@@ -195,7 +195,7 @@ contract greedyverseNfts is ERC1155, Ownable{
         156000000000000000
     ];
 
-    uint256 landPriceFirstListing = 120000000000000000;
+    uint256 public landMintingPrice = 120000000000000000;
     uint256 tax = 30000000000000000;
 
       //  uint256 public spMaxNftAmount_perNft = 40;
@@ -225,14 +225,15 @@ contract greedyverseNfts is ERC1155, Ownable{
 
     mapping (address => mapping(uint256 => uint256)) public singlePlayeramount;
 
-    mapping(address => bool) isWhiteListed;
+    // mapping(address => bool) isWhiteListed;
 
     mapping(address => uint256) public winnings;
 
     bool public Mint = false;
     bool public PublicMint = false;
-    bool public privateMint = false;
-    bool public firstLandMint = false;
+    // bool public privateMint = false;
+    // bool public firstLandMint = false;
+    bool public LandMint = false;
 
 
     constructor() ERC1155("https://greedyverse.co/api/getNftMetaData.php?id={id}"){
@@ -244,24 +245,30 @@ contract greedyverseNfts is ERC1155, Ownable{
       pancakeswapV2Router = _pancakeswapV2Router;
     }
 
-    function addToWhiteList(address user) public onlyOwner{
-        isWhiteListed[user] = true;
-    }
+    // function addToWhiteList(address user) public onlyOwner{
+    //     isWhiteListed[user] = true;
+    // }
 
-     function removeFromWhiteList(address user) public onlyOwner{
-        isWhiteListed[user] = false;
-    }
+    //  function removeFromWhiteList(address user) public onlyOwner{
+    //     isWhiteListed[user] = false;
+    // }
 
-    function whiteListMint(uint256 id, uint256 amount) public payable{
-        require(isWhiteListed[msg.sender], "!w");
-        if(privateMint){
-            _mint(id,amount,false);
-        }else if(firstLandMint){
-            _mint(id,amount,true);
-        }
+    // function whiteListMint(uint256 id, uint256 amount) public payable{
+    //     require(isWhiteListed[msg.sender], "!w");
+    //     if(privateMint){
+    //         _mint(id,amount,false);
+    //     }else if(firstLandMint){
+    //         _mint(id,amount,true);
+    //     }
+        
+    // }
+    
+     function mintLand(uint256 amount) public payable{
+         require(LandMint, "ExLc");
+         uint256 id = 29;
+       _mint(id,amount,true);
         
     }
-
 
      function revive(uint256 id, uint256 amount) public payable{
         require(msg.sender != address(0), "0a");
@@ -352,14 +359,14 @@ contract greedyverseNfts is ERC1155, Ownable{
          return true;
     }
 
-    function _mint(uint256 id, uint256 amount, bool landMintFirstListing) internal {
+    function _mint(uint256 id, uint256 amount, bool landMinting) internal {
          require(Mint, "!s");
          require(msg.sender != address(0), "0a");
          require(mintedNftsAmount[id].add(amount) < maxNftsAmount[id], "au");
-         if(!landMintFirstListing){
+         if(!landMinting){
             require(msg.value >= nftMintPrice[id].mul(amount), "asm");
          }else{
-            require(msg.value >= landPriceFirstListing.mul(amount), "asm");
+            require(msg.value >= landMintingPrice.mul(amount), "asm");
          }
          require(check_conditions(id,amount),"");
 
@@ -451,10 +458,18 @@ contract greedyverseNfts is ERC1155, Ownable{
         Mint = false;
     }
 
-     function start_end_MintType(bool _privatemint, bool _PublicMint, bool _firstLandMint) public onlyOwner{
+    //  function start_end_MintType(bool _privatemint, bool _PublicMint, bool _firstLandMint) public onlyOwner{
+    //     PublicMint = _PublicMint;
+    //     privateMint = _privatemint;
+    //     firstLandMint = _firstLandMint;
+    // }
+
+    function start_end_MintType(bool _PublicMint, bool _LandMint, uint256 _landMintingPrice) public onlyOwner{
         PublicMint = _PublicMint;
-        privateMint = _privatemint;
-        firstLandMint = _firstLandMint;
+        LandMint = _LandMint;
+        if(_LandMint){
+            landMintingPrice = _landMintingPrice;
+        }
     }
 
    
