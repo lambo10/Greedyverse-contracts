@@ -276,10 +276,12 @@ contract greedyverseNfts is ERC1155, Ownable{
    
         for (uint i=0; i<player1destructionlist.length; i++) {
            TotalPlayer1payment = TotalPlayer1payment.add(nftMintPrice[player1destructionlist[i]].div(2)); 
+           holders[player2][i].totalHealth.sub(nftMintPrice[player1destructionlist[i]].div(2));
         }
 
         for (uint i=0; i<player2destructionlist.length; i++) {
            TotalPlayer2payment = TotalPlayer2payment.add(nftMintPrice[player2destructionlist[i]].div(2)); 
+           holders[player1][i].totalHealth.sub(nftMintPrice[player2destructionlist[i]].div(2));
         }
 
         winnings[player1] = winnings[player1].add(TotalPlayer1payment);
@@ -329,23 +331,23 @@ contract greedyverseNfts is ERC1155, Ownable{
 
     function check_conditions(uint256 id, uint256 amount) private view returns(bool){
         if(id == 2){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[2]), "");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[2]));
          }else if(id == 3){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[1]), "");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[1]));
          }else if(id == 29){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[3]), "");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[3]));
          }else if(id == 20){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[4]), "");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[4]));
          }else if(id == 21){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[5]), "");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[5]));
          }else if(id == 22){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[6]), "");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[6]));
          }else if(id == 14){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[7]), "");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[7]));
          }else if(id == 8){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[8]), "");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[8]));
          }else{
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[0]), "");
+             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[0]));
          }
          return true;
     }
@@ -405,7 +407,7 @@ contract greedyverseNfts is ERC1155, Ownable{
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "!owner||a"
         );
-        require(check_conditions(id,amount),"");
+        require(check_conditions(id,amount));
 
         _safeTransferFrom(from, to, id, amount, data);
 
