@@ -225,6 +225,8 @@ contract greedyverseNfts is ERC1155, Ownable{
 
     mapping (address => mapping(uint256 => uint256)) public singlePlayeramount;
 
+    mapping(string => bool) public paymentConfirmations;
+
     // mapping(address => bool) isWhiteListed;
 
     mapping(address => uint256) public winnings;
@@ -277,25 +279,25 @@ contract greedyverseNfts is ERC1155, Ownable{
         holders[msg.sender][id].totalHealth = (holders[msg.sender][id].totalHealth).add((nftMintPrice[id].div(2)).mul(amount));
     }
 
-    function payWinnings(uint256[] memory player1destructionlist, uint256[] memory player2destructionlist, address player1, address player2) public payable onlyOwner{
+    function payWinnings(uint256[] memory player1destructionlist, uint256[] memory player2destructionlist, address player1, address player2, string memory battleID) public payable onlyOwner{
         uint256 TotalPlayer1payment = 0;
         uint256 TotalPlayer2payment = 0;
    
         for (uint i=0; i<player1destructionlist.length; i++) {
            TotalPlayer1payment = TotalPlayer1payment.add(nftMintPrice[player1destructionlist[i]].div(2)); 
-           holders[player2][player1destructionlist[i]].totalHealth.sub(nftMintPrice[player1destructionlist[i]].div(2));
+           holders[player2][player1destructionlist[i]].totalHealth = holders[player2][player1destructionlist[i]].totalHealth.sub(nftMintPrice[player1destructionlist[i]].div(2));
         }
 
         for (uint i=0; i<player2destructionlist.length; i++) {
            TotalPlayer2payment = TotalPlayer2payment.add(nftMintPrice[player2destructionlist[i]].div(2)); 
-           holders[player1][player1destructionlist[i]].totalHealth.sub(nftMintPrice[player2destructionlist[i]].div(2));
+           holders[player1][player1destructionlist[i]].totalHealth = holders[player1][player1destructionlist[i]].totalHealth.sub(nftMintPrice[player2destructionlist[i]].div(2));
         }
 
         winnings[player1] = winnings[player1].add(TotalPlayer1payment);
 
         winnings[player2] = winnings[player2].add(TotalPlayer2payment);
 
-     
+        paymentConfirmations[battleID] = true;
     } 
 
 
@@ -311,7 +313,7 @@ contract greedyverseNfts is ERC1155, Ownable{
         if(winnings[msg.sender] < 2000000000000000){
 
         (bool success1, ) = payable(msg.sender).call{value: winnings[msg.sender].sub(winnings[msg.sender].mul(tax))}("");
-        require(success1, "");
+        require(success1);
 
         }
         else{
@@ -325,7 +327,7 @@ contract greedyverseNfts is ERC1155, Ownable{
         winnings[msg.sender] = 0;
 
         (bool success2, ) = marketing_contestWallet.call{value: winnings[msg.sender].mul(tax)}("");
-        require(success2, "");
+        require(success2);
 
     }
 
@@ -383,17 +385,17 @@ contract greedyverseNfts is ERC1155, Ownable{
 
         if(id == 29){
         (bool success1, ) = marketing_contestWallet.call{value: msg.value.div(3)}("");
-        require(success1, "");
+        require(success1);
 
         (bool success2, ) = teamWallet.call{value: msg.value.div(3)}("");
-        require(success2, "");
+        require(success2);
 
         (bool success3, ) = gameDevWallet.call{value: msg.value.div(3)}("");
-        require(success3, "");
+        require(success3);
 
         }else{
         (bool success2, ) = teamWallet.call{value: msg.value.div(2)}("");
-        require(success2, "");
+        require(success2);
         }
 
         
@@ -433,7 +435,7 @@ contract greedyverseNfts is ERC1155, Ownable{
             );
             uint256 id = ids[i];
             uint256 amount = amounts[i];
-            require(check_conditions(id,amount),"");
+            require(check_conditions(id,amount));
 
             registerTransfer(from, to, id, amount);
 
@@ -448,6 +450,10 @@ contract greedyverseNfts is ERC1155, Ownable{
 
     function getPlayerNftTotalHealth(address account, uint256 id) public view returns(uint256){
         return holders[account][id].totalHealth;
+    }
+
+    function check_paymentConfirmations(string memory battleID) public view returns(bool){
+        return paymentConfirmations[battleID];
     }
 
     function startMint() public onlyOwner{
