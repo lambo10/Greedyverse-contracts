@@ -276,7 +276,7 @@ contract greedyverseNfts is ERC1155, Ownable{
         require(msg.sender != address(0), "0a");
         require(msg.value >= (nftMintPrice[id].div(2)).mul(amount), "asm");
 
-        holders[msg.sender][id].totalHealth = (holders[msg.sender][id].totalHealth).add((nftMintPrice[id].div(2)).mul(amount));
+        holders[msg.sender][id].totalHealth = holders[msg.sender][id].totalHealth.add((nftMintPrice[id].div(2)).mul(amount));
     }
 
     function payWinnings(uint256[] memory player1destructionlist, uint256[] memory player2destructionlist, address player1, address player2, string memory battleID) public payable onlyOwner{
