@@ -1,11 +1,10 @@
 pragma solidity ^0.8.7;
 
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import"@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 
-contract speedups is ERC1155, Ownable{
+contract speedups is  Ownable{
     using SafeMath for uint256;
 
     address payable public marketing_contestWallet;
@@ -17,7 +16,7 @@ contract speedups is ERC1155, Ownable{
 
     mapping (address => mapping(string => bool))  public paymentConfirmations;
 
-    constructor() ERC1155(""){
+    constructor() {
       marketing_contestWallet = payable(0x39216B5e5fB7b08081eA0a107957d8C7AC197C25);
       teamWallet = payable(0x23f7E43F6Ada4f265f8184Ef842570b86fB8a367);
       gameDevWallet = payable(0xe2D4190c70A84EEF16f9490bA22C2f14Ec47fdc5);
@@ -53,16 +52,12 @@ contract speedups is ERC1155, Ownable{
         speedUpTrainingAmount = _speedUpTrainingAmount;
     }
 
-    function speedUpConstruction(uint256 _speedUpConstructionAmount)public onlyOwner{
+    function setSpeedUpConstruction(uint256 _speedUpConstructionAmount)public onlyOwner{
         speedUpConstructionAmount = _speedUpConstructionAmount;
     }
 
-      function getSpeedUpTrainingAmount() public view returns(uint256){
-        return speedUpTrainingAmount;
-    }
-
-    function getSpeedUpConstruction() public view returns(uint256){
-        return speedUpConstructionAmount;
+    function get_paymentConfirmations(address account, string memory paymentID)public view returns(bool){
+       return paymentConfirmations[account][paymentID];
     }
 
    
