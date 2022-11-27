@@ -4,6 +4,7 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import"@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 
 interface IPancakeRouter01 {
@@ -196,7 +197,6 @@ contract greedyverseNfts is ERC1155, Ownable{
     ];
 
     uint256 public landMintingPrice = 120000000000000000;
-    uint256 tax = 30000000000000000;
 
       //  uint256 public spMaxNftAmount_perNft = 40;
     //  uint256 public MaxStoneWall_per_player = 30;
@@ -210,8 +210,11 @@ contract greedyverseNfts is ERC1155, Ownable{
 
     uint256[9] public max_nfts_amount = [40,30,30,5,2,2,3,3,3];
 
-
-     address greedyverseToken = 0x732bfaFB57c940CEc3983c49000D1340d3F7BB39;
+     address greedyverseToken_addr = 0x8850D2c68c632E3B258e612abAA8FadA7E6958E5;
+     address busd_contract_address = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
+     IERC20 public greedyverse_token = IERC20(greedyverseToken_addr);
+     IERC20 public busd_token = IERC20(busd_contract_address);
+     
 
      IPancakeRouter02 public immutable pancakeswapV2Router;
 
@@ -227,6 +230,14 @@ contract greedyverseNfts is ERC1155, Ownable{
 
     mapping (address => mapping(string => mapping(uint256 => uint256)))  public paymentConfirmations;
 
+    mapping (address => mapping(uint256 => uint256))  public current_purchase_balances;
+
+    mapping (address => mapping(address => mapping(string => bool))) public battleReqs;
+
+    mapping (address => bool)  public battles;
+
+    
+
     // mapping(address => bool) isWhiteListed;
 
     mapping(address => uint256) public winnings;
@@ -237,7 +248,6 @@ contract greedyverseNfts is ERC1155, Ownable{
     // bool public firstLandMint = false;
     bool public LandMint = false;
 
-
     constructor() ERC1155("https://greedyverse.co/api/getNftMetaData.php?id={id}"){
       marketing_contestWallet = payable(0x39216B5e5fB7b08081eA0a107957d8C7AC197C25);
       teamWallet = payable(0x23f7E43F6Ada4f265f8184Ef842570b86fB8a367);
@@ -245,6 +255,7 @@ contract greedyverseNfts is ERC1155, Ownable{
 
       IPancakeRouter02 _pancakeswapV2Router = IPancakeRouter02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
       pancakeswapV2Router = _pancakeswapV2Router;
+
     }
 
     // function addToWhiteList(address user) public onlyOwner{
@@ -264,126 +275,185 @@ contract greedyverseNfts is ERC1155, Ownable{
     //     }
         
     // }
-    
-     function mintLand(uint256 amount) public payable{
-         require(LandMint, "ExLc");
-         uint256 id = 29;
-       _mint(id,amount,true);
+
+    function buyBusd() public payable {
+        address[] memory path = new address[](2);
+        path[0] = pancakeswapV2Router.WETH();
+        path[1] = busd_contract_address;
         
+        pancakeswapV2Router.swapExactETHForTokensSupportingFeeOnTransferTokens{value: msg.value}(
+            0, 
+            path, 
+            address(this),
+            block.timestamp + 15
+        );
+    }
+
+    function getBNBtoBusdPrice(uint256 bnbvalue)private view returns(uint256){
+        address[] memory ao_path = new address[](2);
+        ao_path[0] = busd_contract_address;
+        ao_path[1] = pancakeswapV2Router.WETH();
+        return uint256(pancakeswapV2Router.getAmountsIn(bnbvalue, ao_path)[0]);
+    }
+
+    function makeMintPayment(uint256 id) public payable{
+    
+        uint256 amoutOut = getBNBtoBusdPrice(msg.value);
+        require(amoutOut >= nftMintPrice[id]);
+        buyBusd();
+        current_purchase_balances[msg.sender][id] = current_purchase_balances[msg.sender][id].add(uint256(amoutOut));
+        
+    }
+    
+    //  function mintLand(uint256 amount) public{
+    //      require(LandMint);
+    //      uint256 id = 29;
+    //    _mint(id,amount,true);
+    // }
+
+    function dispatch_busd_Funds(address to,uint256 amount)private{
+        busd_token.transfer(to, amount);
     }
 
      function revive(uint256 id, uint256 amount) public payable{
-        require(msg.sender != address(0), "0a");
-        require(msg.value >= (nftMintPrice[id].div(2)).mul(amount), "asm");
-
-        holders[msg.sender][id].totalHealth = holders[msg.sender][id].totalHealth.add((nftMintPrice[id].div(2)).mul(amount));
+        require(msg.sender != address(0));
+        uint256 amoutOut = getBNBtoBusdPrice(msg.value);
+        uint256 halfNftMintPrice = nftMintPrice[id].div(2);
+        require(amoutOut >= halfNftMintPrice.mul(amount));
+        buyBusd();
+        holders[msg.sender][id].totalHealth = holders[msg.sender][id].totalHealth.add(halfNftMintPrice.mul(amount));
     }
 
-
-    function payWinnings(uint256 id, uint256 amount, address player, string memory battleID)public onlyOwner{
-        holders[player][id].totalHealth = holders[player][id].totalHealth.sub((nftMintPrice[id].div(2)).mul(amount));
-        winnings[player] = winnings[player].add((nftMintPrice[id].div(2)).mul(amount));
-        paymentConfirmations[player][battleID][id] = (nftMintPrice[id].div(2)).mul(amount);
-    }
-
-
-      function claimTokens() public payable {
-       
-       require(winnings[msg.sender] > 0, "0b");
-
-         address[] memory path = new address[](2);
-        path[0] = pancakeswapV2Router.WETH();
-        path[1] = greedyverseToken;
-        
-        
-        if(winnings[msg.sender] < 2000000000000000){
-
-        (bool success1, ) = payable(msg.sender).call{value: winnings[msg.sender].sub(winnings[msg.sender].mul(tax))}("");
-        require(success1);
-
+    function start_end_battle(address opponent, string memory battleID, bool startBattle)public {
+        address player = msg.sender;
+        battleReqs[player][opponent][battleID] = startBattle;
+        bool opponentBattleReq = battleReqs[opponent][player][battleID];
+        if((startBattle && opponentBattleReq) || (!startBattle && !opponentBattleReq)){
+            battles[player] = startBattle;
+            battles[opponent] = startBattle;
         }
-        else{
-        pancakeswapV2Router.swapExactETHForTokensSupportingFeeOnTransferTokens{value: winnings[msg.sender].sub(winnings[msg.sender].mul(tax))}(
-            0, 
+        
+    }
+
+
+    function payWinnings(uint256 id, uint256 amount, address player1, address player2, string memory battleID)public onlyOwner{
+        
+        uint256 half_nftMintPrice = nftMintPrice[id].div(2);
+        holders[player2][id].totalHealth = holders[player2][id].totalHealth.sub(half_nftMintPrice.mul(amount));
+
+        winnings[player1] = winnings[player1].add(half_nftMintPrice.mul(amount));
+
+        paymentConfirmations[player1][battleID][id] = half_nftMintPrice.mul(amount);
+    }
+
+
+    function approveBusdExpenditure() public onlyOwner{
+        busd_token.approve(0x10ED43C718714eb63d5aA57B78B54704E256024E, 1000000000000000000000000);
+    }
+
+
+    function claimTokens() public {
+
+       uint256 playerWinnings = winnings[msg.sender];
+       require(playerWinnings > 0);
+   
+        address[] memory path = new address[](2);
+        path[0] = busd_contract_address;
+        path[1] = greedyverseToken_addr;
+        
+        pancakeswapV2Router.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+            playerWinnings,
+            0,
             path, 
             msg.sender,
             block.timestamp + 15
         );
-    }
-        winnings[msg.sender] = 0;
+      
 
-        (bool success2, ) = marketing_contestWallet.call{value: winnings[msg.sender].mul(tax)}("");
-        require(success2);
+        winnings[msg.sender] = winnings[msg.sender].sub(playerWinnings);
 
     }
 
         
 
-      function mint(uint256 id, uint256 amount) public payable{
-        require(PublicMint, "!s");
-        _mint(id,amount,false);
+      function mint(uint256 id, uint256 amount) public {
+        require(PublicMint || LandMint);
+        if(LandMint){
+            _mint(29,amount,true);
+        }else if(PublicMint){
+            _mint(id,amount,false);
+        }
+        
     }
 
+
     function check_conditions(uint256 id, uint256 amount) private view returns(bool){
+        uint256 singlePlayeramount_sunit = singlePlayeramount[msg.sender][id].add(amount);
         if(id == 2){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[2]));
+             require((singlePlayeramount_sunit <= max_nfts_amount[2]));
          }else if(id == 3){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[1]));
+             require((singlePlayeramount_sunit <= max_nfts_amount[1]));
          }else if(id == 29){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[3]));
+             require((singlePlayeramount_sunit <= max_nfts_amount[3]));
          }else if(id == 20){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[4]));
+             require((singlePlayeramount_sunit <= max_nfts_amount[4]));
          }else if(id == 21){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[5]));
+             require((singlePlayeramount_sunit <= max_nfts_amount[5]));
          }else if(id == 22){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[6]));
+             require((singlePlayeramount_sunit <= max_nfts_amount[6]));
          }else if(id == 14){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[7]));
+             require((singlePlayeramount_sunit <= max_nfts_amount[7]));
          }else if(id == 8){
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[8]));
+             require((singlePlayeramount_sunit <= max_nfts_amount[8]));
          }else{
-             require((singlePlayeramount[msg.sender][id].add(amount) <= max_nfts_amount[0]));
+             require((singlePlayeramount_sunit <= max_nfts_amount[0]));
          }
          return true;
     }
 
-    function _mint(uint256 id, uint256 amount, bool landMinting) internal {
-         require(Mint, "!s");
-         require(msg.sender != address(0), "0a");
-         require(mintedNftsAmount[id].add(amount) < maxNftsAmount[id], "au");
+        function _mint(uint256 id, uint256 amount, bool landMinting) internal {
+         require(Mint);
+         require(msg.sender != address(0));
+         uint256 paymentAmount = current_purchase_balances[msg.sender][id];
+         uint256 itemPrice = 0;
+         uint256 playerMnftA = mintedNftsAmount[id].add(amount);
+         uint256 nftMintPrice_s = nftMintPrice[id];
+         require(playerMnftA < maxNftsAmount[id]);
          if(!landMinting){
-            require(msg.value >= nftMintPrice[id].mul(amount), "asm");
+            uint256 nftMprice = nftMintPrice_s.mul(amount);
+            require(paymentAmount >= nftMprice);
+            itemPrice = nftMprice;
          }else{
-            require(msg.value >= landMintingPrice.mul(amount), "asm");
+             uint256 lmintP = landMintingPrice.mul(amount);
+            require(paymentAmount >= lmintP);
+            itemPrice = lmintP;
          }
-         require(check_conditions(id,amount),"");
+         require(check_conditions(id,amount));
 
-         depositeProceeds(id);
-         mintedNftsAmount[id] = mintedNftsAmount[id].add(amount);
+         depositeProceeds(id,itemPrice);
+         mintedNftsAmount[id] = playerMnftA;
         _mint(msg.sender, id, amount, "");
+
+        current_purchase_balances[msg.sender][id] = paymentAmount.sub(itemPrice);
+
         singlePlayeramount[msg.sender][id] = singlePlayeramount[msg.sender][id].add(amount);
 
-        holders[msg.sender][id].totalHealth = (holders[msg.sender][id].totalHealth).add((nftMintPrice[id].div(2)).mul(amount)) ;
+        holders[msg.sender][id].totalHealth = (holders[msg.sender][id].totalHealth).add((nftMintPrice_s.div(2)).mul(amount)) ;
         holders[msg.sender][id].amount = holders[msg.sender][id].amount.add(amount);
     }
 
-    function depositeProceeds(uint256 id) private {
+    function depositeProceeds(uint256 id,uint256 value) private {
 
-        if(id == 29){
-        (bool success1, ) = marketing_contestWallet.call{value: msg.value.div(3)}("");
-        require(success1);
-
-        (bool success2, ) = teamWallet.call{value: msg.value.div(3)}("");
-        require(success2);
-
-        (bool success3, ) = gameDevWallet.call{value: msg.value.div(3)}("");
-        require(success3);
+         if(id == 29){
+        uint256 value_div3 = value.div(3);
+        dispatch_busd_Funds(marketing_contestWallet, value_div3);
+        dispatch_busd_Funds(teamWallet, value_div3);
+        dispatch_busd_Funds(gameDevWallet, value_div3);
 
         }else{
-        (bool success2, ) = teamWallet.call{value: msg.value.div(2)}("");
-        require(success2);
+        dispatch_busd_Funds(teamWallet, value.div(2));
         }
-
+        
         
     }
 
@@ -399,10 +469,10 @@ contract greedyverseNfts is ERC1155, Ownable{
 
     function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) public override {
         require(
-            from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "!owner||a"
+            from == _msgSender() || isApprovedForAll(from, _msgSender())
         );
         require(check_conditions(id,amount));
+        require(!battles[from]);
 
         _safeTransferFrom(from, to, id, amount, data);
 
@@ -416,12 +486,12 @@ contract greedyverseNfts is ERC1155, Ownable{
 
 
             require(
-                    from == _msgSender() || isApprovedForAll(from, _msgSender()),
-                    "!owner||a"
+                    from == _msgSender() || isApprovedForAll(from, _msgSender())
             );
             uint256 id = ids[i];
             uint256 amount = amounts[i];
             require(check_conditions(id,amount));
+            require(!battles[from]);
 
             registerTransfer(from, to, id, amount);
 
@@ -430,9 +500,9 @@ contract greedyverseNfts is ERC1155, Ownable{
     }
 
 
-    function getPlayerNftAmount(address account, uint256 id) public view returns(uint256){
-        return holders[account][id].amount;
-    }
+    // function getPlayerNftAmount(address account, uint256 id) public view returns(uint256){
+    //     return holders[account][id].amount;
+    // }
 
     function getPlayerNftTotalHealth(address account, uint256 id) public view returns(uint256){
         return holders[account][id].totalHealth;
@@ -442,27 +512,18 @@ contract greedyverseNfts is ERC1155, Ownable{
         return paymentConfirmations[player][battleID][id];
     }
 
-    function startMint() public onlyOwner{
-        Mint = true;
-    }
-
-    function endMint() public onlyOwner{
-        Mint = false;
-    }
-
-    //  function start_end_MintType(bool _privatemint, bool _PublicMint, bool _firstLandMint) public onlyOwner{
-    //     PublicMint = _PublicMint;
-    //     privateMint = _privatemint;
-    //     firstLandMint = _firstLandMint;
-    // }
-
-    function start_end_MintType(bool _PublicMint, bool _LandMint, uint256 _landMintingPrice) public onlyOwner{
+    function start_end_MintType(bool _mintValue, bool _PublicMint, bool _LandMint, uint256 _landMintingPrice) public onlyOwner{
+        Mint = _mintValue;
         PublicMint = _PublicMint;
         LandMint = _LandMint;
         if(_LandMint){
             landMintingPrice = _landMintingPrice;
         }
         nftMintPrice[29] = landMintingPrice;
+    }
+
+    function setMintPrice(uint256 id, uint256 amount) public onlyOwner{
+        nftMintPrice[id] = amount;
     }
 
    
