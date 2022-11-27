@@ -13,6 +13,7 @@ contract speedups is  Ownable{
 
     uint256 public speedUpTrainingAmount = 5000000000000000;
     uint256 public speedUpConstructionAmount = 5000000000000000;
+    uint256 public twentyFourHourShield = 5000000000000000;
 
     mapping (address => mapping(string => bool))  public paymentConfirmations;
 
@@ -31,6 +32,12 @@ contract speedups is  Ownable{
 
       function speedupConstruction(string memory paymentID) public payable{
          require(msg.value >= speedUpConstructionAmount, "Amount too small");
+         depositeProceeds();
+         paymentConfirmations[msg.sender][paymentID] = true;
+    }
+
+    function twentyFourHourShield_payment(string memory paymentID) public payable{
+         require(msg.value >= twentyFourHourShield, "Amount too small");
          depositeProceeds();
          paymentConfirmations[msg.sender][paymentID] = true;
     }
@@ -54,6 +61,10 @@ contract speedups is  Ownable{
 
     function setSpeedUpConstruction(uint256 _speedUpConstructionAmount)public onlyOwner{
         speedUpConstructionAmount = _speedUpConstructionAmount;
+    }
+
+    function setTwentyFourHourShield(uint256 _twentyFourHourShield)public onlyOwner{
+        twentyFourHourShield = _twentyFourHourShield;
     }
 
     function get_paymentConfirmations(address account, string memory paymentID)public view returns(bool){
