@@ -198,8 +198,6 @@ contract greedyverseNfts is ERC1155, Ownable{
         156000000000000000
     ];
 
-    uint256 public landMintingPrice = 120000000000000000;
-
       //  uint256 public spMaxNftAmount_perNft = 40;
     //  uint256 public MaxStoneWall_per_player = 30;
     //  uint256 public MaxWoodWall_per_player = 30;
@@ -383,9 +381,9 @@ contract greedyverseNfts is ERC1155, Ownable{
       function mint(uint256 id, uint256 amount) public {
         require(PublicMint || LandMint);
         if(LandMint){
-            _mint(29,amount,true);
+            _mint(29,amount);
         }else if(PublicMint){
-            _mint(id,amount,false);
+            _mint(id,amount);
         }
         
     }
@@ -415,7 +413,7 @@ contract greedyverseNfts is ERC1155, Ownable{
          return true;
     }
 
-        function _mint(uint256 id, uint256 amount, bool landMinting) internal {
+        function _mint(uint256 id, uint256 amount) internal {
          require(Mint);
          require(msg.sender != address(0));
          uint256 paymentAmount = current_purchase_balances[msg.sender][id];
@@ -423,15 +421,11 @@ contract greedyverseNfts is ERC1155, Ownable{
          uint256 playerMnftA = mintedNftsAmount[id].add(amount);
          uint256 nftMintPrice_s = nftMintPrice[id];
          require(playerMnftA < maxNftsAmount[id]);
-         if(!landMinting){
+
             uint256 nftMprice = nftMintPrice_s.mul(amount);
             require(paymentAmount >= nftMprice);
             itemPrice = nftMprice;
-         }else{
-             uint256 lmintP = landMintingPrice.mul(amount);
-            require(paymentAmount >= lmintP);
-            itemPrice = lmintP;
-         }
+       
          require(check_conditions(id,amount));
 
           if(id == 29){
@@ -513,10 +507,14 @@ contract greedyverseNfts is ERC1155, Ownable{
     }
 
     function setMintPrice(uint256 id, uint256 amount) public onlyOwner{
+        nftMintPrice[id] = amount;
+    }
+
+    function setNftsMintableAmount(uint256 id, uint256 amount)public onlyOwner{
         if(id == 29){
             require(amount <= maxLand);
         }
-        nftMintPrice[id] = amount;
+        maxNftsAmount[id] = amount;
     }
 
    
