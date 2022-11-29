@@ -158,6 +158,8 @@ contract greedyverseNfts is ERC1155, Ownable{
     string public name = "GreedyVerseNFT";
     string public symbol = "GNFT";
 
+    uint256 public maxLand = 200000000000000000000000;
+
     uint256[30] public maxNftsAmount = [90000, 30000, 1800000, 1800000, 60000, 60000, 48000, 48000, 27000, 30000, 90000, 30000, 8100, 13500, 21600, 120000, 180000, 21600, 240000, 120000, 7200, 8100, 9750, 30000, 120000, 30000, 240000, 480000, 120000, 60000];
     
     uint256[30] public mintedNftsAmount = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -318,10 +320,10 @@ contract greedyverseNfts is ERC1155, Ownable{
      function revive(uint256 id, uint256 amount) public payable{
         require(msg.sender != address(0));
         uint256 amoutOut = getBNBtoBusdPrice(msg.value);
-        uint256 halfNftMintPrice = nftMintPrice[id].div(2);
-        require(amoutOut >= halfNftMintPrice.mul(amount));
+        uint256 wkr_nftMintPrice = nftMintPrice[id];
+        require(amoutOut >= wkr_nftMintPrice.mul(amount));
         buyBusd();
-        holders[msg.sender][id].totalHealth = holders[msg.sender][id].totalHealth.add(halfNftMintPrice.mul(amount));
+        holders[msg.sender][id].totalHealth = holders[msg.sender][id].totalHealth.add(wkr_nftMintPrice.mul(amount));
     }
 
     function start_end_battle(address opponent, string memory battleID, bool startBattle)public {
@@ -338,12 +340,14 @@ contract greedyverseNfts is ERC1155, Ownable{
 
     function payWinnings(uint256 id, uint256 amount, address player1, address player2, string memory battleID)public onlyOwner{
         
-        uint256 half_nftMintPrice = nftMintPrice[id].div(2);
-        holders[player2][id].totalHealth = holders[player2][id].totalHealth.sub(half_nftMintPrice.mul(amount));
+        uint256 wkr_nftMintPrice = nftMintPrice[id];
+        uint256 wkr_nftMintPrice_m_a = wkr_nftMintPrice.mul(amount);
+        holders[player2][id].totalHealth = holders[player2][id].totalHealth.sub(wkr_nftMintPrice_m_a);
+      
+        winnings[player1] = winnings[player1].add(wkr_nftMintPrice_m_a);
 
-        winnings[player1] = winnings[player1].add(half_nftMintPrice.mul(amount));
-
-        paymentConfirmations[player1][battleID][id] = half_nftMintPrice.mul(amount);
+        paymentConfirmations[player1][battleID][id] = wkr_nftMintPrice_m_a;
+  
     }
 
 
@@ -430,7 +434,12 @@ contract greedyverseNfts is ERC1155, Ownable{
          }
          require(check_conditions(id,amount));
 
-         depositeProceeds(id,itemPrice);
+          if(id == 29){
+        uint256 value_div3 = itemPrice;
+        dispatch_busd_Funds(marketing_contestWallet, value_div3);
+        dispatch_busd_Funds(teamWallet, value_div3);
+        dispatch_busd_Funds(gameDevWallet, value_div3);
+        }
          mintedNftsAmount[id] = playerMnftA;
         _mint(msg.sender, id, amount, "");
 
@@ -438,32 +447,17 @@ contract greedyverseNfts is ERC1155, Ownable{
 
         singlePlayeramount[msg.sender][id] = singlePlayeramount[msg.sender][id].add(amount);
 
-        holders[msg.sender][id].totalHealth = (holders[msg.sender][id].totalHealth).add((nftMintPrice_s.div(2)).mul(amount)) ;
+        holders[msg.sender][id].totalHealth = (holders[msg.sender][id].totalHealth).add((nftMintPrice_s).mul(amount));
         holders[msg.sender][id].amount = holders[msg.sender][id].amount.add(amount);
-    }
-
-    function depositeProceeds(uint256 id,uint256 value) private {
-
-         if(id == 29){
-        uint256 value_div3 = value.div(3);
-        dispatch_busd_Funds(marketing_contestWallet, value_div3);
-        dispatch_busd_Funds(teamWallet, value_div3);
-        dispatch_busd_Funds(gameDevWallet, value_div3);
-
-        }else{
-        dispatch_busd_Funds(teamWallet, value.div(2));
-        }
-        
-        
     }
 
     function registerTransfer(address from, address to, uint256 id, uint256 amount)private{
          singlePlayeramount[from][id] = (singlePlayeramount[from][id]).sub(amount);
         singlePlayeramount[to][id] = (singlePlayeramount[to][id]).add(amount);
 
-        holders[from][id].totalHealth = (holders[from][id].totalHealth).sub((nftMintPrice[id].div(2)).mul(amount));
+        holders[from][id].totalHealth = (holders[from][id].totalHealth).sub((nftMintPrice[id]).mul(amount));
         holders[from][id].amount = (holders[from][id].amount).sub(amount);
-        holders[to][id].totalHealth = (nftMintPrice[id].div(2)).mul(amount);
+        holders[to][id].totalHealth = (nftMintPrice[id]).mul(amount);
         holders[to][id].amount = amount;
     }
 
@@ -512,17 +506,16 @@ contract greedyverseNfts is ERC1155, Ownable{
         return paymentConfirmations[player][battleID][id];
     }
 
-    function start_end_MintType(bool _mintValue, bool _PublicMint, bool _LandMint, uint256 _landMintingPrice) public onlyOwner{
+    function start_end_MintType(bool _mintValue, bool _PublicMint, bool _LandMint) public onlyOwner{
         Mint = _mintValue;
         PublicMint = _PublicMint;
-        LandMint = _LandMint;
-        if(_LandMint){
-            landMintingPrice = _landMintingPrice;
-        }
-        nftMintPrice[29] = landMintingPrice;
+        LandMint = _LandMint; 
     }
 
     function setMintPrice(uint256 id, uint256 amount) public onlyOwner{
+        if(id == 29){
+            require(amount <= maxLand);
+        }
         nftMintPrice[id] = amount;
     }
 
