@@ -232,7 +232,7 @@ contract greedyverseNfts is ERC1155, Ownable{
 
     mapping (address => mapping(uint256 => uint256))  public current_purchase_balances;
 
-    mapping (address => mapping(address => mapping(string => bool))) public battleReqs;
+    // mapping (address => mapping(address => mapping(string => bool))) public battleReqs;
 
     mapping (address => bool)  public battles;
 
@@ -324,16 +324,21 @@ contract greedyverseNfts is ERC1155, Ownable{
         holders[msg.sender][id].totalHealth = holders[msg.sender][id].totalHealth.add(wkr_nftMintPrice.mul(amount));
     }
 
-    function start_end_battle(address opponent, string memory battleID, bool startBattle)public {
-        address player = msg.sender;
-        battleReqs[player][opponent][battleID] = startBattle;
-        bool opponentBattleReq = battleReqs[opponent][player][battleID];
-        if((startBattle && opponentBattleReq) || (!startBattle && !opponentBattleReq)){
-            battles[player] = startBattle;
-            battles[opponent] = startBattle;
-        }
+    // function start_end_battle(address opponent, string memory battleID, bool startBattle)public {
+    //     address player = msg.sender;
+    //     battleReqs[player][opponent][battleID] = startBattle;
+    //     bool opponentBattleReq = battleReqs[opponent][player][battleID];
+    //     if((startBattle && opponentBattleReq) || (!startBattle && !opponentBattleReq)){
+    //         battles[player] = startBattle;
+    //         battles[opponent] = startBattle;
+    //     }
         
-    }
+    // }
+
+    function start_end_battle(address player, address opponent, bool startBattle)public onlyOwner{
+        battles[player] = startBattle;
+        battles[opponent] = startBattle;   
+     }
 
 
     function payWinnings(uint256 id, uint256 amount, address player1, address player2, string memory battleID)public onlyOwner{
