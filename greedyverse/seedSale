@@ -1,0 +1,268 @@
+pragma solidity ^0.8.0;
+
+import "@openzeppelin/contracts/access/Ownable.sol";
+import"@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+
+
+interface IPancakeRouter01 {
+    function factory() external pure returns (address);
+    function WETH() external pure returns (address);
+
+    function addLiquidity(
+        address tokenA,
+        address tokenB,
+        uint amountADesired,
+        uint amountBDesired,
+        uint amountAMin,
+        uint amountBMin,
+        address to,
+        uint deadline
+    ) external returns (uint amountA, uint amountB, uint liquidity);
+    function addLiquidityETH(
+        address token,
+        uint amountTokenDesired,
+        uint amountTokenMin,
+        uint amountETHMin,
+        address to,
+        uint deadline
+    ) external payable returns (uint amountToken, uint amountETH, uint liquidity);
+    function removeLiquidity(
+        address tokenA,
+        address tokenB,
+        uint liquidity,
+        uint amountAMin,
+        uint amountBMin,
+        address to,
+        uint deadline
+    ) external returns (uint amountA, uint amountB);
+    function removeLiquidityETH(
+        address token,
+        uint liquidity,
+        uint amountTokenMin,
+        uint amountETHMin,
+        address to,
+        uint deadline
+    ) external returns (uint amountToken, uint amountETH);
+    function removeLiquidityWithPermit(
+        address tokenA,
+        address tokenB,
+        uint liquidity,
+        uint amountAMin,
+        uint amountBMin,
+        address to,
+        uint deadline,
+        bool approveMax, uint8 v, bytes32 r, bytes32 s
+    ) external returns (uint amountA, uint amountB);
+    function removeLiquidityETHWithPermit(
+        address token,
+        uint liquidity,
+        uint amountTokenMin,
+        uint amountETHMin,
+        address to,
+        uint deadline,
+        bool approveMax, uint8 v, bytes32 r, bytes32 s
+    ) external returns (uint amountToken, uint amountETH);
+    function swapExactTokensForTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external returns (uint[] memory amounts);
+    function swapTokensForExactTokens(
+        uint amountOut,
+        uint amountInMax,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external returns (uint[] memory amounts);
+    function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
+        external
+        payable
+        returns (uint[] memory amounts);
+    function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
+        external
+        returns (uint[] memory amounts);
+    function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
+        external
+        returns (uint[] memory amounts);
+    function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)
+        external
+        payable
+        returns (uint[] memory amounts);
+
+    function quote(uint amountA, uint reserveA, uint reserveB) external pure returns (uint amountB);
+    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) external pure returns (uint amountOut);
+    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) external pure returns (uint amountIn);
+    function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts);
+    function getAmountsIn(uint amountOut, address[] calldata path) external view returns (uint[] memory amounts);
+}
+
+// File: contracts\interfaces\IPancakeRouter02.sol
+
+pragma solidity >=0.6.2;
+
+interface IPancakeRouter02 is IPancakeRouter01 {
+    function removeLiquidityETHSupportingFeeOnTransferTokens(
+        address token,
+        uint liquidity,
+        uint amountTokenMin,
+        uint amountETHMin,
+        address to,
+        uint deadline
+    ) external returns (uint amountETH);
+    function removeLiquidityETHWithPermitSupportingFeeOnTransferTokens(
+        address token,
+        uint liquidity,
+        uint amountTokenMin,
+        uint amountETHMin,
+        address to,
+        uint deadline,
+        bool approveMax, uint8 v, bytes32 r, bytes32 s
+    ) external returns (uint amountETH);
+
+    function swapExactTokensForTokensSupportingFeeOnTransferTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external;
+    function swapExactETHForTokensSupportingFeeOnTransferTokens(
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external payable;
+    function swapExactTokensForETHSupportingFeeOnTransferTokens(
+        uint amountIn,
+        uint amountOutMin,
+        address[] calldata path,
+        address to,
+        uint deadline
+    ) external;
+}
+
+
+
+contract PaymentHandler is Ownable {
+    using SafeMath for uint256;
+
+    // The wallet address to receive the payments
+    address payable public walletAddress;
+
+    // The conversion rate from BUSD to GVERSE
+    uint256 public gverse_usd_conversion_rate;
+
+    // The conversion rate from BNB to GVERSE
+    uint256 public conversionRateBNB;
+
+    uint256 public usd_minimumPurchase;
+
+    address busd_contract_address = 0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7;
+    IERC20 public busd_token = IERC20(busd_contract_address);
+
+    address gverse_contract_address = 0x78867BbEeF44f2326bF8DDd1941a4439382EF2A7;
+    IERC20 public gverse_token = IERC20(gverse_contract_address);
+
+    IPancakeRouter02 public immutable pancakeswapV2Router;
+
+    // Event to log incoming payments
+    event PaymentReceived(string tokenName, uint256 amount, uint256 gverseEquivalent);
+
+     struct purchase
+        {
+            string tokenUsed;
+            uint256 amount;
+            uint256 gverseEquivalent;
+        }
+
+    // Map to store the payment details
+    mapping (address => purchase) public gversePurchases;
+
+    mapping(address => mapping(uint256 => uint256)) public vestingSchedule;
+    
+    function setVestingSchedule(address _beneficiary, uint256 _timestamp, uint256 _amount) public {
+        vestingSchedule[_beneficiary][_timestamp] = _amount;
+    }
+    
+    function claim(uint256 _timestamp) public {
+        uint256 amount = vestingSchedule[msg.sender][_timestamp];
+        require(amount > 0, "No vesting amount scheduled for this timestamp.");
+        require(gverse_token.balanceOf(address(this)) >= amount, "Not enough Gverse balance.");
+        gversePurchases[msg.sender].gverseEquivalent -= amount;
+        busd_token.transferFrom(address(this), msg.sender, amount);
+    }
+
+    constructor(){
+              IPancakeRouter02 _pancakeswapV2Router = IPancakeRouter02(0xD99D1c33F9fC3444f8101754aBC46c52416550D1);
+              pancakeswapV2Router = _pancakeswapV2Router;
+    }
+
+   function setTeamAddressAndRate(address _walletAddress, uint256 _gverse_usd_conversion_rate) public onlyOwner {
+    if (_walletAddress != address(0)) {
+        walletAddress = payable(_walletAddress);
+    }
+    if (_gverse_usd_conversion_rate != 0) {
+        gverse_usd_conversion_rate = _gverse_usd_conversion_rate;
+    }
+    }
+
+  function getBNBtoBusdPrice(uint256 bnbvalue)private view returns(uint256){
+        address[] memory ao_path = new address[](2);
+        ao_path[0] = busd_contract_address;
+        ao_path[1] = pancakeswapV2Router.WETH();
+        return uint256(pancakeswapV2Router.getAmountsIn(bnbvalue, ao_path)[0]);
+    }
+
+     function buyBusd() public payable {
+        address[] memory path = new address[](2);
+        path[0] = pancakeswapV2Router.WETH();
+        path[1] = busd_contract_address;
+        
+        pancakeswapV2Router.swapExactETHForTokensSupportingFeeOnTransferTokens{value: msg.value}(
+            0, 
+            path, 
+            address(this),
+            block.timestamp + 15
+        );
+    }
+
+    // Receive payments in BUSD
+    function receiveBUSD(uint256 amount) public payable {
+        require(amount >= usd_minimumPurchase, "Amount Below Minimum");
+        require(busd_token.transferFrom(msg.sender, walletAddress, amount), "Transfer failed");
+        uint256 gverseEquivalent = amount.mul(gverse_usd_conversion_rate);
+        // walletAddress.transfer(gverseEquivalent);
+        emit PaymentReceived("BUSD", amount, gverseEquivalent);
+        gversePurchases[msg.sender].tokenUsed = "BUSD";
+        gversePurchases[msg.sender].amount = amount;
+        gversePurchases[msg.sender].gverseEquivalent = gverseEquivalent;
+    }
+
+    // Receive payments in BNB
+    function receiveBNB() public payable {
+        uint256 amount = getBNBtoBusdPrice(msg.value);
+        require(amount >= usd_minimumPurchase, "Amount Below Minimum");
+        buyBusd();
+        require(busd_token.transferFrom(msg.sender, walletAddress, (amount - 1000000000000000000)), "Transfer failed");
+        uint256 gverseEquivalent = amount.mul(gverse_usd_conversion_rate);
+        // walletAddress.transfer(gverseEquivalent);
+        emit PaymentReceived("BNB", amount, gverseEquivalent);
+        gversePurchases[msg.sender].tokenUsed = "BNB";
+        gversePurchases[msg.sender].amount = amount;
+        gversePurchases[msg.sender].gverseEquivalent = gverseEquivalent;
+    }
+
+    function approveBusdExpenditure() public onlyOwner{
+        busd_token.approve(0x10ED43C718714eb63d5aA57B78B54704E256024E, 1000000000000000000000000);
+    }
+
+    function removeBusdReminats(address _removalAddress)public onlyOwner{
+        uint256 balance = busd_token.balanceOf(address(this));
+        require(busd_token.transferFrom(address(this), _removalAddress, (balance - 1000000000000000000)), "Transfer failed");
+    }
+
+        
+}
