@@ -172,37 +172,37 @@ contract PaymentHandler is Ownable {
 
     event Deposit(address indexed _from, uint256 _value);
 
-    fallback() external payable {
-        // Check if the deposit is Ether or an ERC20 token
-        if (msg.value > 0) {
-            // Ether deposit
-            receiveBNB();
-        } else {
-            // ERC20 token deposit
+    // fallback() external payable {
+    //     // Check if the deposit is Ether or an ERC20 token
+    //     if (msg.value > 0) {
+    //         // Ether deposit
+    //         receiveBNB();
+    //     } else {
+    //         // ERC20 token deposit
            
-        // Extract the token contract address from the "data" property
+    //     // Extract the token contract address from the "data" property
  
-        (bool success, address tokenAddress) = abi.decode(msg.data[4:36], (bool, address));
-        require(success, "Failed to decode token contract address");
+    //     (bool success, address tokenAddress) = abi.decode(msg.data[4:36], (bool, address));
+    //     require(success, "Failed to decode token contract address");
 
-        // Verify the token contract address is the expected one
-        address expectedTokenAddress = busd_contract_address;
-        require(tokenAddress == expectedTokenAddress, "Incorrect token contract address");
+    //     // Verify the token contract address is the expected one
+    //     address expectedTokenAddress = busd_contract_address;
+    //     require(tokenAddress == expectedTokenAddress, "Incorrect token contract address");
 
-        // Get the ERC20 contract instance
-        IERC20 token = IERC20(tokenAddress);
+    //     // Get the ERC20 contract instance
+    //     IERC20 token = IERC20(tokenAddress);
 
-        // Extract the token amount from the "data" property
-        (bool success2, uint256 decodedData) = abi.decode(msg.data[36:], (bool, uint256));
-        require(success2, "Failed to decode transfer data");
-        uint256 tokenAmount = decodedData;
+    //     // Extract the token amount from the "data" property
+    //     (bool success2, uint256 decodedData) = abi.decode(msg.data[36:], (bool, uint256));
+    //     require(success2, "Failed to decode transfer data");
+    //     uint256 tokenAmount = decodedData;
 
-        // Verify the sender has sufficient balance of the token
-        require(token.balanceOf(msg.sender) >= tokenAmount, "Sender does not have enough token balance");
-        receiveBUSD(tokenAmount);
+    //     // Verify the sender has sufficient balance of the token
+    //     require(token.balanceOf(msg.sender) >= tokenAmount, "Sender does not have enough token balance");
+    //     receiveBUSD(tokenAmount);
 
-        }
-    }
+    //     }
+    // }
 
      struct purchase
         {
@@ -327,7 +327,7 @@ contract PaymentHandler is Ownable {
 
     function removeBusdReminats(address _removalAddress)public onlyOwner{
         uint256 balance = busd_token.balanceOf(address(this));
-        require(busd_token.transferFrom(address(this), _removalAddress, (balance - 1000000000000000000)), "Transfer failed");
+        require(busd_token.transferFrom(address(this), _removalAddress, balance), "Transfer failed");
     }
 
     function setStartClaim(bool _startClaim) public onlyOwner{
