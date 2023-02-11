@@ -251,10 +251,11 @@ contract PaymentHandler is Ownable {
     function claim(int _vestingNo) public {
         require(startClaim, "Claim Not Started");
         require(!claimedTokenFlags[msg.sender][_vestingNo], "Claimed Already");
-        require(block.timestamp >= vestingSchedule[_vestingNo].time, "No vesting amount scheduled for this timestamp");
+        require((block.timestamp >= vestingSchedule[_vestingNo].time && vestingSchedule[_vestingNo].time != 0), "No vesting amount scheduled for this timestamp");
         uint256 amount = (vestingSchedule[_vestingNo].claimPercentage/100000000000000000000)*gversePurchases[msg.sender].gverseEquivalent;
         require(gverse_token.balanceOf(address(this)) >= amount, "Not enough Gverse balance.");
         gverse_token.transferFrom(address(this), msg.sender, amount);
+        claimedTokenFlags[msg.sender][_vestingNo] = true;
     }
 
    
