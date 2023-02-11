@@ -334,5 +334,9 @@ contract PaymentHandler is Ownable {
         startClaim = _startClaim;
     }
 
+    function setUsd_minimumPurchase(uint256 _usd_minimumPurchase)public onlyOwner{
+        usd_minimumPurchase = _usd_minimumPurchase;
+    }
+
         
 }
