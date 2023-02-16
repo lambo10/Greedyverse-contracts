@@ -157,6 +157,8 @@ contract PaymentHandler is Ownable {
 
     uint256 public usd_minimumPurchase;
 
+    uint256 public totalTokensSold;
+
     address busd_contract_address = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
     IERC20 public busd_token = IERC20(busd_contract_address);
 
@@ -304,6 +306,7 @@ contract PaymentHandler is Ownable {
         gversePurchases[msg.sender].tokenUsed = "BUSD";
         gversePurchases[msg.sender].amount = gversePurchases[msg.sender].amount.add(amount);
         gversePurchases[msg.sender].gverseEquivalent = gversePurchases[msg.sender].gverseEquivalent.add(gverseEquivalent);
+        totalTokensSold = totalTokensSold.add(gverseEquivalent);
     }
 
     // Receive payments in BNB
@@ -321,6 +324,7 @@ contract PaymentHandler is Ownable {
         gversePurchases[msg.sender].tokenUsed = "BNB";
         gversePurchases[msg.sender].amount = gversePurchases[msg.sender].amount.add(amount);
         gversePurchases[msg.sender].gverseEquivalent = gversePurchases[msg.sender].gverseEquivalent.add(gverseEquivalent);
+        totalTokensSold = totalTokensSold.add(gverseEquivalent);
     }
 
     function approveBusdExpenditure() public onlyOwner{
