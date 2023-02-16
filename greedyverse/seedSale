@@ -232,13 +232,15 @@ contract PaymentHandler is Ownable {
     function depositeGVERSE(uint256 amount) public onlyOwner{
         require(busd_token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
         vestingSchedule[1].time = block.timestamp;
-        vestingSchedule[1].claimPercentage = 70000000000000000000;
+        vestingSchedule[1].claimPercentage = 60000000000000000000;
         vestingSchedule[2].time = block.timestamp.add(30 days);
         vestingSchedule[2].claimPercentage = 10000000000000000000;
         vestingSchedule[3].time = vestingSchedule[2].time.add(30 days);
         vestingSchedule[3].claimPercentage = 10000000000000000000;
         vestingSchedule[4].time = vestingSchedule[3].time.add(30 days);
         vestingSchedule[4].claimPercentage = 10000000000000000000;
+        vestingSchedule[5].time = vestingSchedule[4].time.add(30 days);
+        vestingSchedule[5].claimPercentage = 10000000000000000000;
     }
     
     function setVestingScheduleTime(uint256 _timestamp, int _vestingNo) public onlyOwner{
@@ -269,7 +271,7 @@ contract PaymentHandler is Ownable {
     }
     }
 
-  function getBNBtoBusdPrice(uint256 bnbvalue)private view returns(uint256){
+  function getBNBtoBusdPrice(uint256 bnbvalue)public view returns(uint256){
         address[] memory ao_path = new address[](2);
         ao_path[0] = busd_contract_address;
         ao_path[1] = pancakeswapV2Router.WETH();
@@ -300,8 +302,8 @@ contract PaymentHandler is Ownable {
         uint256 gverseEquivalent = amount.mul(gverse_usd_conversion_rate);
         emit PaymentReceived("BUSD", amount, gverseEquivalent);
         gversePurchases[msg.sender].tokenUsed = "BUSD";
-        gversePurchases[msg.sender].amount = amount;
-        gversePurchases[msg.sender].gverseEquivalent = gverseEquivalent;
+        gversePurchases[msg.sender].amount = gversePurchases[msg.sender].amount.add(amount);
+        gversePurchases[msg.sender].gverseEquivalent = gversePurchases[msg.sender].gverseEquivalent.add(gverseEquivalent);
     }
 
     // Receive payments in BNB
@@ -309,7 +311,7 @@ contract PaymentHandler is Ownable {
         uint256 amount = getBNBtoBusdPrice(msg.value);
         require(amount >= usd_minimumPurchase, "Amount Below Minimum");
         buyBusd();
-        require(busd_token.transferFrom(msg.sender, walletAddress, (amount - 1000000000000000000)), "Transfer failed");
+        require(busd_token.transferFrom(address(this), walletAddress, (amount - 1000000000000000000)), "Transfer failed");
         onBnbPayment(amount);
     }
 
@@ -317,8 +319,8 @@ contract PaymentHandler is Ownable {
         uint256 gverseEquivalent = amount.mul(gverse_usd_conversion_rate);
         emit PaymentReceived("BNB", amount, gverseEquivalent);
         gversePurchases[msg.sender].tokenUsed = "BNB";
-        gversePurchases[msg.sender].amount = amount;
-        gversePurchases[msg.sender].gverseEquivalent = gverseEquivalent;
+        gversePurchases[msg.sender].amount = gversePurchases[msg.sender].amount.add(amount);
+        gversePurchases[msg.sender].gverseEquivalent = gversePurchases[msg.sender].gverseEquivalent.add(gverseEquivalent);
     }
 
     function approveBusdExpenditure() public onlyOwner{
@@ -328,6 +330,11 @@ contract PaymentHandler is Ownable {
     function removeBusdReminats(address _removalAddress)public onlyOwner{
         uint256 balance = busd_token.balanceOf(address(this));
         require(busd_token.transferFrom(address(this), _removalAddress, balance), "Transfer failed");
+    }
+
+     function removeGverseReminats(address _removalAddress)public onlyOwner{
+        uint256 balance = gverse_token.balanceOf(address(this));
+        require(gverse_token.transferFrom(address(this), _removalAddress, balance), "Transfer failed");
     }
 
     function setStartClaim(bool _startClaim) public onlyOwner{
