@@ -232,7 +232,7 @@ contract PaymentHandler is Ownable {
     }
 
     function depositeGVERSE(uint256 amount) public onlyOwner{
-        require(busd_token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
+        require(gverse_token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
         vestingSchedule[1].time = block.timestamp;
         vestingSchedule[1].claimPercentage = 60000000000000000000;
         vestingSchedule[2].time = block.timestamp.add(30 days);
@@ -327,8 +327,8 @@ contract PaymentHandler is Ownable {
         totalTokensSold = totalTokensSold.add(gverseEquivalent);
     }
 
-    function approveBusdExpenditure() public onlyOwner{
-        busd_token.approve(0x10ED43C718714eb63d5aA57B78B54704E256024E, 1000000000000000000000000);
+    function approveBusdExpenditure(uint256 amount) public onlyOwner{
+        busd_token.approve(address(this), amount);
     }
 
     function removeBusdReminats(address _removalAddress)public onlyOwner{
