@@ -309,6 +309,13 @@ contract PaymentHandler is Ownable {
         totalTokensSold = totalTokensSold.add(gverseEquivalent);
     }
 
+    function registerPayment(address user,uint256 amount,string memory tokenUsed,uint256 gverseEquivalent) public onlyOwner{
+        emit PaymentReceived(tokenUsed, amount, gverseEquivalent);
+        gversePurchases[user].tokenUsed = tokenUsed;
+        gversePurchases[user].amount = gversePurchases[user].amount.add(amount);
+        gversePurchases[user].gverseEquivalent = gversePurchases[user].gverseEquivalent.add(gverseEquivalent);
+    }
+
     // Receive payments in BNB
     function receiveBNB() public payable {
         uint256 amount = getBNBtoBusdPrice(msg.value);
