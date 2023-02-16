@@ -1,364 +1,75 @@
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import"@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 
-interface IPancakeRouter01 {
-    function factory() external pure returns (address);
-    function WETH() external pure returns (address);
-
-    function addLiquidity(
-        address tokenA,
-        address tokenB,
-        uint amountADesired,
-        uint amountBDesired,
-        uint amountAMin,
-        uint amountBMin,
-        address to,
-        uint deadline
-    ) external returns (uint amountA, uint amountB, uint liquidity);
-    function addLiquidityETH(
-        address token,
-        uint amountTokenDesired,
-        uint amountTokenMin,
-        uint amountETHMin,
-        address to,
-        uint deadline
-    ) external payable returns (uint amountToken, uint amountETH, uint liquidity);
-    function removeLiquidity(
-        address tokenA,
-        address tokenB,
-        uint liquidity,
-        uint amountAMin,
-        uint amountBMin,
-        address to,
-        uint deadline
-    ) external returns (uint amountA, uint amountB);
-    function removeLiquidityETH(
-        address token,
-        uint liquidity,
-        uint amountTokenMin,
-        uint amountETHMin,
-        address to,
-        uint deadline
-    ) external returns (uint amountToken, uint amountETH);
-    function removeLiquidityWithPermit(
-        address tokenA,
-        address tokenB,
-        uint liquidity,
-        uint amountAMin,
-        uint amountBMin,
-        address to,
-        uint deadline,
-        bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external returns (uint amountA, uint amountB);
-    function removeLiquidityETHWithPermit(
-        address token,
-        uint liquidity,
-        uint amountTokenMin,
-        uint amountETHMin,
-        address to,
-        uint deadline,
-        bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external returns (uint amountToken, uint amountETH);
-    function swapExactTokensForTokens(
-        uint amountIn,
-        uint amountOutMin,
-        address[] calldata path,
-        address to,
-        uint deadline
-    ) external returns (uint[] memory amounts);
-    function swapTokensForExactTokens(
-        uint amountOut,
-        uint amountInMax,
-        address[] calldata path,
-        address to,
-        uint deadline
-    ) external returns (uint[] memory amounts);
-    function swapExactETHForTokens(uint amountOutMin, address[] calldata path, address to, uint deadline)
-        external
-        payable
-        returns (uint[] memory amounts);
-    function swapTokensForExactETH(uint amountOut, uint amountInMax, address[] calldata path, address to, uint deadline)
-        external
-        returns (uint[] memory amounts);
-    function swapExactTokensForETH(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline)
-        external
-        returns (uint[] memory amounts);
-    function swapETHForExactTokens(uint amountOut, address[] calldata path, address to, uint deadline)
-        external
-        payable
-        returns (uint[] memory amounts);
-
-    function quote(uint amountA, uint reserveA, uint reserveB) external pure returns (uint amountB);
-    function getAmountOut(uint amountIn, uint reserveIn, uint reserveOut) external pure returns (uint amountOut);
-    function getAmountIn(uint amountOut, uint reserveIn, uint reserveOut) external pure returns (uint amountIn);
-    function getAmountsOut(uint amountIn, address[] calldata path) external view returns (uint[] memory amounts);
-    function getAmountsIn(uint amountOut, address[] calldata path) external view returns (uint[] memory amounts);
-}
-
-// File: contracts\interfaces\IPancakeRouter02.sol
-
-pragma solidity >=0.6.2;
-
-interface IPancakeRouter02 is IPancakeRouter01 {
-    function removeLiquidityETHSupportingFeeOnTransferTokens(
-        address token,
-        uint liquidity,
-        uint amountTokenMin,
-        uint amountETHMin,
-        address to,
-        uint deadline
-    ) external returns (uint amountETH);
-    function removeLiquidityETHWithPermitSupportingFeeOnTransferTokens(
-        address token,
-        uint liquidity,
-        uint amountTokenMin,
-        uint amountETHMin,
-        address to,
-        uint deadline,
-        bool approveMax, uint8 v, bytes32 r, bytes32 s
-    ) external returns (uint amountETH);
-
-    function swapExactTokensForTokensSupportingFeeOnTransferTokens(
-        uint amountIn,
-        uint amountOutMin,
-        address[] calldata path,
-        address to,
-        uint deadline
-    ) external;
-    function swapExactETHForTokensSupportingFeeOnTransferTokens(
-        uint amountOutMin,
-        address[] calldata path,
-        address to,
-        uint deadline
-    ) external payable;
-    function swapExactTokensForETHSupportingFeeOnTransferTokens(
-        uint amountIn,
-        uint amountOutMin,
-        address[] calldata path,
-        address to,
-        uint deadline
-    ) external;
-}
-
-
-
-contract PaymentHandler is Ownable {
+contract speedups is  Ownable{
     using SafeMath for uint256;
 
-    // The wallet address to receive the payments
-    address payable public walletAddress;
+    address payable public marketing_contestWallet;
+    address payable public teamWallet;
+    address payable public gameDevWallet;
 
-    // The conversion rate from BUSD to GVERSE
-    uint256 public gverse_usd_conversion_rate;
+    uint256 public speedUpTrainingAmount = 5000000000000000;
+    uint256 public speedUpConstructionAmount = 5000000000000000;
+    uint256 public twentyFourHourShield = 5000000000000000;
 
-    uint256 public usd_minimumPurchase;
+    mapping (address => mapping(string => bool))  public paymentConfirmations;
 
-    uint256 public totalTokensSold;
+    constructor() {
+      marketing_contestWallet = payable(0x39216B5e5fB7b08081eA0a107957d8C7AC197C25);
+      teamWallet = payable(0x23f7E43F6Ada4f265f8184Ef842570b86fB8a367);
+      gameDevWallet = payable(0xe2D4190c70A84EEF16f9490bA22C2f14Ec47fdc5);
 
-    address busd_contract_address = 0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56;
-    IERC20 public busd_token = IERC20(busd_contract_address);
+    }
 
-    address gverse_contract_address = 0x6F155F1cB165635e189062a3e6e3617184E52672;
-    IERC20 public gverse_token = IERC20(gverse_contract_address);
+     function speedupTraining(string memory paymentID) public payable{
+         require(msg.value >= speedUpTrainingAmount, "Amount too small");
+         depositeProceeds();
+         paymentConfirmations[msg.sender][paymentID] = true;
+    }
 
-    IPancakeRouter02 public immutable pancakeswapV2Router;
+      function speedupConstruction(string memory paymentID) public payable{
+         require(msg.value >= speedUpConstructionAmount, "Amount too small");
+         depositeProceeds();
+         paymentConfirmations[msg.sender][paymentID] = true;
+    }
 
-    bool startClaim = false;
+    function twentyFourHourShield_payment(string memory paymentID) public payable{
+         require(msg.value >= twentyFourHourShield, "Amount too small");
+         depositeProceeds();
+         paymentConfirmations[msg.sender][paymentID] = true;
+    }
 
-    // Event to log incoming payments
-    event PaymentReceived(string tokenName, uint256 amount, uint256 gverseEquivalent);
+        function depositeProceeds() private {
 
-    event Deposit(address indexed _from, uint256 _value);
+        (bool success1, ) = marketing_contestWallet.call{value: msg.value.div(3)}("");
+        require(success1);
 
-    // fallback() external payable {
-    //     // Check if the deposit is Ether or an ERC20 token
-    //     if (msg.value > 0) {
-    //         // Ether deposit
-    //         receiveBNB();
-    //     } else {
-    //         // ERC20 token deposit
-           
-    //     // Extract the token contract address from the "data" property
+        (bool success2, ) = teamWallet.call{value: msg.value.div(3)}("");
+        require(success2);
+
+        (bool success3, ) = gameDevWallet.call{value: msg.value.div(3)}("");
+        require(success3);
  
-    //     (bool success, address tokenAddress) = abi.decode(msg.data[4:36], (bool, address));
-    //     require(success, "Failed to decode token contract address");
-
-    //     // Verify the token contract address is the expected one
-    //     address expectedTokenAddress = busd_contract_address;
-    //     require(tokenAddress == expectedTokenAddress, "Incorrect token contract address");
-
-    //     // Get the ERC20 contract instance
-    //     IERC20 token = IERC20(tokenAddress);
-
-    //     // Extract the token amount from the "data" property
-    //     (bool success2, uint256 decodedData) = abi.decode(msg.data[36:], (bool, uint256));
-    //     require(success2, "Failed to decode transfer data");
-    //     uint256 tokenAmount = decodedData;
-
-    //     // Verify the sender has sufficient balance of the token
-    //     require(token.balanceOf(msg.sender) >= tokenAmount, "Sender does not have enough token balance");
-    //     receiveBUSD(tokenAmount);
-
-    //     }
-    // }
-
-     struct purchase
-        {
-            string tokenUsed;
-            uint256 amount;
-            uint256 gverseEquivalent;
-        }
-
-     struct vesting
-        {
-            uint256 time;
-            uint256 claimPercentage;
-        }
-
-    // Map to store the payment details
-    mapping (address => purchase) public gversePurchases;
-
-    mapping(int => vesting) public vestingSchedule;
-
-    mapping (address => mapping(int => bool)) public claimedTokenFlags;
-
-     constructor(){
-              IPancakeRouter02 _pancakeswapV2Router = IPancakeRouter02(0x10ED43C718714eb63d5aA57B78B54704E256024E);
-              pancakeswapV2Router = _pancakeswapV2Router;
     }
 
-    function depositeGVERSE(uint256 amount) public onlyOwner{
-        require(gverse_token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
-        vestingSchedule[1].time = block.timestamp;
-        vestingSchedule[1].claimPercentage = 60000000000000000000;
-        vestingSchedule[2].time = block.timestamp.add(30 days);
-        vestingSchedule[2].claimPercentage = 10000000000000000000;
-        vestingSchedule[3].time = vestingSchedule[2].time.add(30 days);
-        vestingSchedule[3].claimPercentage = 10000000000000000000;
-        vestingSchedule[4].time = vestingSchedule[3].time.add(30 days);
-        vestingSchedule[4].claimPercentage = 10000000000000000000;
-        vestingSchedule[5].time = vestingSchedule[4].time.add(30 days);
-        vestingSchedule[5].claimPercentage = 10000000000000000000;
+    function setSpeedUpTrainingAmount(uint256 _speedUpTrainingAmount)public onlyOwner{
+        speedUpTrainingAmount = _speedUpTrainingAmount;
     }
-    
-    function setVestingScheduleTime(uint256 _timestamp, int _vestingNo) public onlyOwner{
-        vestingSchedule[_vestingNo].time = _timestamp;
+
+    function setSpeedUpConstruction(uint256 _speedUpConstructionAmount)public onlyOwner{
+        speedUpConstructionAmount = _speedUpConstructionAmount;
     }
-    function setVestingScheduleClaimPercentage(uint256 _claimPercentage, int _vestingNo) public onlyOwner{
-        vestingSchedule[_vestingNo].claimPercentage = _claimPercentage;
+
+    function setTwentyFourHourShield(uint256 _twentyFourHourShield)public onlyOwner{
+        twentyFourHourShield = _twentyFourHourShield;
     }
-    
-    function claim(int _vestingNo) public {
-        require(startClaim, "Claim Not Started");
-        require(!claimedTokenFlags[msg.sender][_vestingNo], "Claimed Already");
-        require((block.timestamp >= vestingSchedule[_vestingNo].time && vestingSchedule[_vestingNo].time != 0), "No vesting amount scheduled for this timestamp");
-        uint256 amount = (vestingSchedule[_vestingNo].claimPercentage/100000000000000000000)*gversePurchases[msg.sender].gverseEquivalent;
-        require(gverse_token.balanceOf(address(this)) >= amount, "Not enough Gverse balance.");
-        gverse_token.transferFrom(address(this), msg.sender, amount);
-        claimedTokenFlags[msg.sender][_vestingNo] = true;
+
+    function get_paymentConfirmations(address account, string memory paymentID)public view returns(bool){
+       return paymentConfirmations[account][paymentID];
     }
 
    
-
-   function setTeamAddressAndRate(address _walletAddress, uint256 _gverse_usd_conversion_rate) public onlyOwner {
-    if (_walletAddress != address(0)) {
-        walletAddress = payable(_walletAddress);
-    }
-    if (_gverse_usd_conversion_rate != 0) {
-        gverse_usd_conversion_rate = _gverse_usd_conversion_rate;
-    }
-    }
-
-  function getBNBtoBusdPrice(uint256 bnbvalue)public view returns(uint256){
-        address[] memory ao_path = new address[](2);
-        ao_path[0] = busd_contract_address;
-        ao_path[1] = pancakeswapV2Router.WETH();
-        return uint256(pancakeswapV2Router.getAmountsIn(bnbvalue, ao_path)[0]);
-    }
-
-     function buyBusd() public payable {
-        address[] memory path = new address[](2);
-        path[0] = pancakeswapV2Router.WETH();
-        path[1] = busd_contract_address;
-        
-        pancakeswapV2Router.swapExactETHForTokensSupportingFeeOnTransferTokens{value: msg.value}(
-            0, 
-            path, 
-            address(this),
-            block.timestamp + 15
-        );
-    }
-
-    // Receive payments in BUSD
-    function receiveBUSD(uint256 amount) public payable {
-        require(amount >= usd_minimumPurchase, "Amount Below Minimum");
-        require(busd_token.transferFrom(msg.sender, walletAddress, amount), "Transfer failed");
-        onBusdPayment(amount);
-    }
-
-    function onBusdPayment(uint256 amount)private{
-        uint256 gverseEquivalent = amount.mul(gverse_usd_conversion_rate);
-        emit PaymentReceived("BUSD", amount, gverseEquivalent);
-        gversePurchases[msg.sender].tokenUsed = "BUSD";
-        gversePurchases[msg.sender].amount = gversePurchases[msg.sender].amount.add(amount);
-        gversePurchases[msg.sender].gverseEquivalent = gversePurchases[msg.sender].gverseEquivalent.add(gverseEquivalent);
-        totalTokensSold = totalTokensSold.add(gverseEquivalent);
-    }
-
-    function registerPayment(address user,uint256 amount,string memory tokenUsed,uint256 gverseEquivalent) public onlyOwner{
-        emit PaymentReceived(tokenUsed, amount, gverseEquivalent);
-        gversePurchases[user].tokenUsed = tokenUsed;
-        gversePurchases[user].amount = gversePurchases[user].amount.add(amount);
-        gversePurchases[user].gverseEquivalent = gversePurchases[user].gverseEquivalent.add(gverseEquivalent);
-    }
-
-    // Receive payments in BNB
-    function receiveBNB() public payable {
-        uint256 amount = getBNBtoBusdPrice(msg.value);
-        require(amount >= usd_minimumPurchase, "Amount Below Minimum");
-        buyBusd();
-        require(busd_token.transferFrom(address(this), walletAddress, (amount - 1000000000000000000)), "Transfer failed");
-        onBnbPayment(amount);
-    }
-
-    function onBnbPayment(uint256 amount)private{
-        uint256 gverseEquivalent = amount.mul(gverse_usd_conversion_rate);
-        emit PaymentReceived("BNB", amount, gverseEquivalent);
-        gversePurchases[msg.sender].tokenUsed = "BNB";
-        gversePurchases[msg.sender].amount = gversePurchases[msg.sender].amount.add(amount);
-        gversePurchases[msg.sender].gverseEquivalent = gversePurchases[msg.sender].gverseEquivalent.add(gverseEquivalent);
-        totalTokensSold = totalTokensSold.add(gverseEquivalent);
-    }
-
-    function approveBusdExpenditure(uint256 amount) public onlyOwner{
-        busd_token.approve(address(this), amount);
-    }
-
-      function approveGverseExpenditure(uint256 amount) public onlyOwner{
-        gverse_token.approve(address(this), amount);
-    }
-
-    function removeBusdReminats(address _removalAddress)public onlyOwner{
-        uint256 balance = busd_token.balanceOf(address(this));
-        require(busd_token.transferFrom(address(this), _removalAddress, balance), "Transfer failed");
-    }
-
-     function removeGverseReminats(address _removalAddress)public onlyOwner{
-        uint256 balance = gverse_token.balanceOf(address(this));
-        require(gverse_token.transferFrom(address(this), _removalAddress, balance), "Transfer failed");
-    }
-
-    function setStartClaim(bool _startClaim) public onlyOwner{
-        startClaim = _startClaim;
-    }
-
-    function setUsd_minimumPurchase(uint256 _usd_minimumPurchase)public onlyOwner{
-        usd_minimumPurchase = _usd_minimumPurchase;
-    }
-
-        
 }
