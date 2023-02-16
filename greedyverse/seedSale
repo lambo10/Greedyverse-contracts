@@ -338,6 +338,10 @@ contract PaymentHandler is Ownable {
         busd_token.approve(address(this), amount);
     }
 
+      function approveGverseExpenditure(uint256 amount) public onlyOwner{
+        gverse_token.approve(address(this), amount);
+    }
+
     function removeBusdReminats(address _removalAddress)public onlyOwner{
         uint256 balance = busd_token.balanceOf(address(this));
         require(busd_token.transferFrom(address(this), _removalAddress, balance), "Transfer failed");
