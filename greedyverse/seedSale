@@ -360,5 +360,12 @@ contract PaymentHandler is Ownable {
         usd_minimumPurchase = _usd_minimumPurchase;
     }
 
+    function set_busd_contract_address(address _busd_contract_address)public onlyOwner{
+        busd_contract_address = _busd_contract_address;
+    }
+
+    function set_gverse_contract_address(address _gverse_contract_address)public onlyOwner{
+        gverse_contract_address = _gverse_contract_address;
+    }
         
 }
