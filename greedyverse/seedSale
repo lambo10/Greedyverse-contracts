@@ -216,7 +216,7 @@ contract PaymentHandler is Ownable {
      struct vesting
         {
             uint256 time;
-            uint256 claimPercentage;
+            uint claimPercentage;
         }
 
     // Map to store the payment details
@@ -234,15 +234,15 @@ contract PaymentHandler is Ownable {
     function depositeGVERSE(uint256 amount) public onlyOwner{
         require(gverse_token.transferFrom(msg.sender, address(this), amount), "Transfer failed");
         vestingSchedule[1].time = block.timestamp;
-        vestingSchedule[1].claimPercentage = 60000000000000000000;
+        vestingSchedule[1].claimPercentage = 60;
         vestingSchedule[2].time = block.timestamp.add(30 days);
-        vestingSchedule[2].claimPercentage = 10000000000000000000;
+        vestingSchedule[2].claimPercentage = 10;
         vestingSchedule[3].time = vestingSchedule[2].time.add(30 days);
-        vestingSchedule[3].claimPercentage = 10000000000000000000;
+        vestingSchedule[3].claimPercentage = 10;
         vestingSchedule[4].time = vestingSchedule[3].time.add(30 days);
-        vestingSchedule[4].claimPercentage = 10000000000000000000;
+        vestingSchedule[4].claimPercentage = 10;
         vestingSchedule[5].time = vestingSchedule[4].time.add(30 days);
-        vestingSchedule[5].claimPercentage = 10000000000000000000;
+        vestingSchedule[5].claimPercentage = 10;
     }
     
     function setVestingScheduleTime(uint256 _timestamp, int _vestingNo) public onlyOwner{
@@ -256,12 +256,11 @@ contract PaymentHandler is Ownable {
         require(startClaim, "Claim Not Started");
         require(!claimedTokenFlags[msg.sender][_vestingNo], "Claimed Already");
         require((block.timestamp >= vestingSchedule[_vestingNo].time && vestingSchedule[_vestingNo].time != 0), "No vesting amount scheduled for this timestamp");
-        uint256 amount = (vestingSchedule[_vestingNo].claimPercentage/100000000000000000000)*gversePurchases[msg.sender].gverseEquivalent;
+        uint256 amount = (vestingSchedule[_vestingNo].claimPercentage * gversePurchases[msg.sender].gverseEquivalent) / 100;
         require(gverse_token.balanceOf(address(this)) >= amount, "Not enough Gverse balance.");
         gverse_token.transferFrom(address(this), msg.sender, amount);
         claimedTokenFlags[msg.sender][_vestingNo] = true;
     }
-
    
 
    function setTeamAddressAndRate(address _walletAddress, uint256 _gverse_usd_conversion_rate) public onlyOwner {
